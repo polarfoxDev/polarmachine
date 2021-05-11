@@ -24,6 +24,7 @@ export class TuringMachineComponent implements OnInit {
       {inState: 2, read: ['0'], write: ['0'], toState: 3, move: ['left']},
       {inState: 3, read: [null], write: ['1'], toState: 3, move: ['not']}
     ];
+    this.tm.bands[0].isOutputBand = true;
     this.prepare();
     this.deriveAlphabetFromTransitions();
     const valid = this.validate();
@@ -54,29 +55,24 @@ export class TuringMachineComponent implements OnInit {
       this.log('afterRun', 'no output band');
       return;
     }
-    let lowestIndex = -Infinity;
-    if (!outputBand.nonNegative && outputBand.contentNegativeIndex.some(symbol => symbol)) {
-      const reversedOrderBandPart = outputBand.contentNegativeIndex.reverse();
-      const lastRealIndex = outputBand.contentNegativeIndex.length - reversedOrderBandPart.findIndex(symbol => symbol);
-      lowestIndex = -lastRealIndex - 1;
-    }
-    if (outputBand.contentPositiveIndex.some(symbol => symbol)) {
-      lowestIndex = outputBand.contentPositiveIndex.findIndex(symbol => symbol);
-    }
-    if (lowestIndex === -Infinity) {
-      this.log('afterRun', 'output band empty');
-      return;
+    let lowestIndex = 0;
+    if (!outputBand.nonNegative) {
+      lowestIndex = -outputBand.contentNegativeIndex.length;
     }
     let output = '';
     for (let position = lowestIndex; position < outputBand.contentPositiveIndex.length; position++) {
       output += this.getSymbol(outputBand, position, ' ');
     }
     output = output.trim();
-    this.log('afterRun', 'output starting at band position ' + lowestIndex + ': ' + output);
+    if (output.length === 0) {
+      this.log('afterRun', 'output band empty');
+      return;
+    }
+    this.log('afterRun', 'output: ' + output);
   }
 
   getSymbol(band: TMBand, position: number, blank: string): string {
-    const symbol = position < 0 ? band.contentNegativeIndex[-band.position - 1] : band.contentPositiveIndex[band.position];
+    const symbol = position < 0 ? band.contentNegativeIndex[-position - 1] : band.contentPositiveIndex[position];
     return symbol || blank;
   }
 
