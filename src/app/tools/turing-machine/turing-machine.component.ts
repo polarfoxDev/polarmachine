@@ -18,13 +18,49 @@ export class TuringMachineComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    this.tm.transitions = [
-      {inState: 0, read: [null], write: ['0'], toState: 1, move: ['right']},
-      {inState: 1, read: [null], write: ['1'], toState: 2, move: ['left']},
-      {inState: 2, read: ['0'], write: ['0'], toState: 3, move: ['left']},
-      {inState: 3, read: [null], write: ['1'], toState: 3, move: ['not']}
+    this.tm.bands = [
+      {contentPositiveIndex: ['1', '1'], contentNegativeIndex: []},
+      {contentPositiveIndex: ['1', '0', '1', '0'], contentNegativeIndex: []},
+      {contentPositiveIndex: [], contentNegativeIndex: [], isOutputBand: true}
     ];
-    this.tm.bands[0].isOutputBand = true;
+    this.tm.finiteStates = [10];
+    this.tm.transitions = [
+       {inState: 0, read: [null, '0', null], write: [null, '0', null], toState: 0, move: ['not', 'right', 'not']},
+       {inState: 0, read: [null, '1', null], write: [null, '1', null], toState: 0, move: ['not', 'right', 'not']},
+       {inState: 0, read: ['0', null, null], write: ['0', null, null], toState: 0, move: ['right', 'not', 'not']},
+       {inState: 0, read: ['0', '0', null], write: ['0', '0', null], toState: 0, move: ['right', 'right', 'not']},
+       {inState: 0, read: ['0', '1', null], write: ['0', '1', null], toState: 0, move: ['right', 'right', 'not']},
+       {inState: 0, read: ['1', null, null], write: ['1', null, null], toState: 0, move: ['right', 'not', 'not']},
+       {inState: 0, read: ['1', '0', null], write: ['1', '0', null], toState: 0, move: ['right', 'right', 'not']},
+       {inState: 0, read: ['1', '1', null], write: ['1', '1', null], toState: 0, move: ['right', 'right', 'not']},
+       {inState: 0, read: [null, null, null], write: [null, null, null], toState: 1, move: ['left', 'left', 'not']},
+
+       {inState: 1, read: [null, '0', null], write: [null, '0', '0'], toState: 1, move: ['not', 'left', 'left']},
+       {inState: 1, read: [null, '1', null], write: [null, '1', '1'], toState: 1, move: ['not', 'left', 'left']},
+       {inState: 1, read: ['0', null, null], write: ['0', null, '0'], toState: 1, move: ['left', 'not', 'left']},
+       {inState: 1, read: ['0', '0', null], write: ['0', '0', '0'], toState: 1, move: ['left', 'left', 'left']},
+       {inState: 1, read: ['0', '1', null], write: ['0', '1', '1'], toState: 1, move: ['left', 'left', 'left']},
+       {inState: 1, read: ['1', null, null], write: ['1', null, '1'], toState: 1, move: ['left', 'not', 'left']},
+       {inState: 1, read: ['1', '0', null], write: ['1', '0', '1'], toState: 1, move: ['left', 'left', 'left']},
+       {inState: 1, read: ['1', '1', null], write: ['1', '1', '0'], toState: 2, move: ['left', 'left', 'left']},
+       {inState: 1, read: [null, null, null], write: [null, null, null], toState: 10, move: ['right', 'right', 'right']},
+
+       {inState: 2, read: [null, '0', null], write: [null, '0', '1'], toState: 1, move: ['not', 'left', 'left']},
+       {inState: 2, read: [null, '1', null], write: [null, '1', '0'], toState: 2, move: ['not', 'left', 'left']},
+       {inState: 2, read: ['0', null, null], write: ['0', null, '1'], toState: 1, move: ['left', 'not', 'left']},
+       {inState: 2, read: ['0', '0', null], write: ['0', '0', '1'], toState: 1, move: ['left', 'left', 'left']},
+       {inState: 2, read: ['0', '1', null], write: ['0', '1', '0'], toState: 2, move: ['left', 'left', 'left']},
+       {inState: 2, read: ['1', null, null], write: ['1', null, '0'], toState: 2, move: ['left', 'not', 'left']},
+       {inState: 2, read: ['1', '0', null], write: ['1', '0', '0'], toState: 2, move: ['left', 'left', 'left']},
+       {inState: 2, read: ['1', '1', null], write: ['1', '1', '1'], toState: 2, move: ['left', 'left', 'left']},
+       {inState: 2, read: [null, null, null], write: [null, null, '1'], toState: 10, move: ['right', 'right', 'not']},
+     ];
+    // this.tm.transitions = [
+    //   {inState: 0, read: [null], write: ['0'], toState: 1, move: ['right']},
+    //   {inState: 1, read: [null], write: ['1'], toState: 2, move: ['left']},
+    //   {inState: 2, read: ['0'], write: ['0'], toState: 3, move: ['left']},
+    //   {inState: 3, read: [null], write: ['1'], toState: 3, move: ['not']}
+    // ];
     this.prepare();
     this.deriveAlphabetFromTransitions();
     const valid = this.validate();
@@ -35,15 +71,10 @@ export class TuringMachineComponent implements OnInit {
     this.run(100);
   }
 
-  prepare(input?: string): void {
+  prepare(): void {
     this.log('prepare', 'preparing TM before running...');
     this.tm.state = 0;
     this.tm.bands.forEach(band => {
-      band.contentNegativeIndex = [];
-      band.contentPositiveIndex = [];
-      if (!band.isInputBand && input?.length > 0) {
-        band.contentPositiveIndex = input.split('');
-      }
       band.position = 0;
     });
   }
@@ -82,8 +113,8 @@ export class TuringMachineComponent implements OnInit {
     let steps = 0;
     if (delay) {
       const interval = setInterval(() => {
-        this.running = this.step();
         steps++;
+        this.running = this.step(steps);
         if (!this.running || steps >= maxSteps) {
           clearInterval(interval);
           this.running = false;
@@ -93,8 +124,8 @@ export class TuringMachineComponent implements OnInit {
       }, delay);
     } else {
       while (this.running && steps < maxSteps) {
-        this.running = this.step();
         steps++;
+        this.running = this.step(steps);
       }
       this.running = false;
       this.log('run(instant)', 'machine stopped');
@@ -111,11 +142,6 @@ export class TuringMachineComponent implements OnInit {
     const undefinedBands = this.tm.bands.some(band => !band);
     if (undefinedBands) {
       this.log('validate', 'fail: undefinedBands');
-      return false;
-    }
-    const multipleInputBands = this.tm.bands.filter(band => band.isInputBand).length > 1;
-    if (multipleInputBands) {
-      this.log('validate', 'fail: multipleInputBands');
       return false;
     }
     const multipleOutputBands = this.tm.bands.filter(band => band.isOutputBand).length > 1;
@@ -179,33 +205,44 @@ export class TuringMachineComponent implements OnInit {
     console.log('@' + service + ': ' + action);
   }
 
-  step(): boolean {
+  step(stepIndex: number): boolean {
+    this.log('step(' + stepIndex + ')', 'in state ' + this.tm.state);
     const read = this.tm.bands.map(
       band => band.position < 0 ? band.contentNegativeIndex[-band.position - 1] : band.contentPositiveIndex[band.position]
     );
-    this.log('step', 'read ' + JSON.stringify(read));
+    this.log('step(' + stepIndex + ')', 'read ' + JSON.stringify(read));
     const matchingTransition = this.tm.transitions.find(
       transition => transition.inState === this.tm.state && JSON.stringify(transition.read) === JSON.stringify(read)
     );
     if (!matchingTransition) {
-      this.log('step', 'no matching transition found');
+      this.log('step(' + stepIndex + ')', 'no matching transition found');
       return false;
     }
-    this.log('step', 'use transition with index ' + this.tm.transitions.indexOf(matchingTransition));
+    this.log('step(' + stepIndex + ')', 'use transition with index ' + this.tm.transitions.indexOf(matchingTransition));
     for (let index = 0; index < this.tm.bands.length; index++) {
       const position = this.tm.bands[index].position;
       if (position < 0) {
         this.tm.bands[index].contentNegativeIndex[-position - 1] = matchingTransition.write[index];
         // tslint:disable-next-line: max-line-length
-        this.log('step', 'on band ' + index + ' at position ' + position + ' (left array index ' + (-position - 1).toString() + ') wrote ' + matchingTransition.write[index]);
+        this.log('step(' + stepIndex + ')', 'on band ' + index + ' at position ' + position + ' (left array index ' + (-position - 1).toString() + ') wrote ' + matchingTransition.write[index]);
       } else {
         this.tm.bands[index].contentPositiveIndex[position] = matchingTransition.write[index];
-        this.log('step', 'on band ' + index + ' at position ' + (position).toString() + ' wrote ' + matchingTransition.write[index]);
+        // tslint:disable-next-line: max-line-length
+        this.log('step(' + stepIndex + ')', 'on band ' + index + ' at position ' + (position).toString() + ' wrote ' + matchingTransition.write[index]);
       }
       this.tm.bands[index].position += this.directionToIndexChange(matchingTransition.move[index]);
-      this.log('step', 'on band ' + index + ' move ' + matchingTransition.move[index]);
+      if (this.tm.bands[index].nonNegative && this.tm.bands[index].position < 0) {
+        this.tm.bands[index].position = 0;
+        this.log('step(' + stepIndex + ')', 'on band ' + index + ' forbidden move ' + matchingTransition.move[index] + ' (band is non-negative)');
+      } else {
+        this.log('step(' + stepIndex + ')', 'on band ' + index + ' move ' + matchingTransition.move[index]);
+      }
     }
     this.tm.state = matchingTransition.toState;
+    if (this.tm.finiteStates.includes(this.tm.state)) {
+      this.log('step(' + stepIndex + ')', 'reached finite state ' + this.tm.state);
+      return false;
+    }
     return true;
   }
 

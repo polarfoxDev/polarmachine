@@ -9,7 +9,6 @@ export interface TMBand {
   contentPositiveIndex: string[];
   contentNegativeIndex?: string[];
   position?: number;
-  isInputBand?: boolean;
   isOutputBand?: boolean;
   nonNegative?: boolean;
 }
