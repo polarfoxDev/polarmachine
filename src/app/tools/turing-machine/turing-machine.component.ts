@@ -175,15 +175,15 @@ export class TuringMachineComponent implements OnInit {
     this.tm.alphabet = [... (new Set(symbols))].join('');
   }
 
-  log(service: string, action: string, value?: object): void {
-    console.log('@' + service + ': ' + action, JSON.stringify(value));
+  log(service: string, action: string): void {
+    console.log('@' + service + ': ' + action);
   }
 
   step(): boolean {
     const read = this.tm.bands.map(
       band => band.position < 0 ? band.contentNegativeIndex[-band.position - 1] : band.contentPositiveIndex[band.position]
     );
-    this.log('step', 'read', read);
+    this.log('step', 'read ' + JSON.stringify(read));
     const matchingTransition = this.tm.transitions.find(
       transition => transition.inState === this.tm.state && JSON.stringify(transition.read) === JSON.stringify(read)
     );
@@ -191,7 +191,7 @@ export class TuringMachineComponent implements OnInit {
       this.log('step', 'no matching transition found');
       return false;
     }
-    this.log('step', 'use transition', matchingTransition);
+    this.log('step', 'use transition with index ' + this.tm.transitions.indexOf(matchingTransition));
     for (let index = 0; index < this.tm.bands.length; index++) {
       const position = this.tm.bands[index].position;
       if (position < 0) {
