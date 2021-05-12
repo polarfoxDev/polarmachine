@@ -18,7 +18,7 @@
       <mat-card-content>
         <div>
           <div>band {{i}}</div>
-          <button class="float-right" mat-icon-button (click)="removeBand(i)"><mat-icon>delete</mat-icon></button>
+          <button class="float-right" mat-icon-button [disabled]="tm.bands.length === 1" (click)="removeBand(i)"><mat-icon>delete</mat-icon></button>
         </div>
         <div class="flex-list">
           <mat-checkbox [(checked)]="band.isOutputBand" class="example-margin">use as output band</mat-checkbox>
@@ -66,5 +66,23 @@
   </table>
   <span class="mb-s"><button mat-flat-button color="accent" (click)="addTransition()">add transition</button></span>
 </div>
-
-
+<h2>Run Configuration</h2>
+<div class="config-form">
+  <div>
+    <mat-checkbox [(checked)]="runConfig.asyncMode" class="example-margin">delay steps by </mat-checkbox>
+    <mat-form-field class="inline-form-field">
+      <input [(ngModel)]="runConfig.delay" matInput>
+    </mat-form-field>
+    ms
+  </div>
+  <div>
+    maximum # steps: <mat-form-field class="inline-form-field">
+      <input [(ngModel)]="runConfig.maxSteps" matInput>
+    </mat-form-field>
+  </div>
+  <h3>Band inputs</h3>
+  <mat-form-field *ngFor="let band of tm.bands; let i=index">
+    <mat-label>band {{i}}</mat-label>
+    <input [(ngModel)]="runConfig.bandInputs[i]" matInput>
+  </mat-form-field>
+</div>

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AddTransitionDialogComponent } from './add-transition-dialog/add-transition-dialog.component';
 import { TMBand, TMMoveDirection, TMTransition, TuringMachineConfig } from './turing-machine-config.interface';
+import { TuringMachineRunConfig } from './turing-machine-run-config.interface';
 import { TuringMachineService } from './turing-machine.service';
 
 @Component({
@@ -15,6 +16,12 @@ export class TuringMachineComponent implements OnInit {
     bands: [{contentPositiveIndex: []}],
     alphabet: '',
     transitions: []
+  };
+  runConfig: TuringMachineRunConfig = {
+    asyncMode: true,
+    delay: 1000,
+    maxSteps: 60,
+    bandInputs: ['']
   };
   running = false;
 
@@ -88,6 +95,7 @@ export class TuringMachineComponent implements OnInit {
       trans.write.splice(index, 0, null);
       trans.move.splice(index, 0, 'not');
     });
+    this.runConfig.bandInputs.splice(index, 0, '');
   }
 
   removeBand(index: number): void {
@@ -97,6 +105,7 @@ export class TuringMachineComponent implements OnInit {
       trans.write.splice(index, 1);
       trans.move.splice(index, 1);
     });
+    this.runConfig.bandInputs.splice(index, 1);
   }
 
   prepare(): void {
