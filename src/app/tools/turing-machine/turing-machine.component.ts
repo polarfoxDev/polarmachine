@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { TMBand, TMMoveDirection, TuringMachineConfig } from './turing-machine-config.interface';
+import { MatDialog } from '@angular/material/dialog';
+import { AddTransitionDialogComponent } from './add-transition-dialog/add-transition-dialog.component';
+import { TMBand, TMMoveDirection, TMTransition, TuringMachineConfig } from './turing-machine-config.interface';
+import { TuringMachineService } from './turing-machine.service';
 
 @Component({
   selector: 'app-turing-machine',
@@ -15,60 +18,85 @@ export class TuringMachineComponent implements OnInit {
   };
   running = false;
 
-  constructor() { }
+  constructor(public dialog: MatDialog, public tmService: TuringMachineService) { }
 
   ngOnInit(): void {
-    this.tm.bands = [
-      {contentPositiveIndex: ['1', '1'], contentNegativeIndex: []},
-      {contentPositiveIndex: ['1', '0', '1', '0'], contentNegativeIndex: []},
-      {contentPositiveIndex: [], contentNegativeIndex: [], isOutputBand: true}
-    ];
-    this.tm.finiteStates = [10];
-    this.tm.transitions = [
-       {inState: 0, read: [null, '0', null], write: [null, '0', null], toState: 0, move: ['not', 'right', 'not']},
-       {inState: 0, read: [null, '1', null], write: [null, '1', null], toState: 0, move: ['not', 'right', 'not']},
-       {inState: 0, read: ['0', null, null], write: ['0', null, null], toState: 0, move: ['right', 'not', 'not']},
-       {inState: 0, read: ['0', '0', null], write: ['0', '0', null], toState: 0, move: ['right', 'right', 'not']},
-       {inState: 0, read: ['0', '1', null], write: ['0', '1', null], toState: 0, move: ['right', 'right', 'not']},
-       {inState: 0, read: ['1', null, null], write: ['1', null, null], toState: 0, move: ['right', 'not', 'not']},
-       {inState: 0, read: ['1', '0', null], write: ['1', '0', null], toState: 0, move: ['right', 'right', 'not']},
-       {inState: 0, read: ['1', '1', null], write: ['1', '1', null], toState: 0, move: ['right', 'right', 'not']},
-       {inState: 0, read: [null, null, null], write: [null, null, null], toState: 1, move: ['left', 'left', 'not']},
-
-       {inState: 1, read: [null, '0', null], write: [null, '0', '0'], toState: 1, move: ['not', 'left', 'left']},
-       {inState: 1, read: [null, '1', null], write: [null, '1', '1'], toState: 1, move: ['not', 'left', 'left']},
-       {inState: 1, read: ['0', null, null], write: ['0', null, '0'], toState: 1, move: ['left', 'not', 'left']},
-       {inState: 1, read: ['0', '0', null], write: ['0', '0', '0'], toState: 1, move: ['left', 'left', 'left']},
-       {inState: 1, read: ['0', '1', null], write: ['0', '1', '1'], toState: 1, move: ['left', 'left', 'left']},
-       {inState: 1, read: ['1', null, null], write: ['1', null, '1'], toState: 1, move: ['left', 'not', 'left']},
-       {inState: 1, read: ['1', '0', null], write: ['1', '0', '1'], toState: 1, move: ['left', 'left', 'left']},
-       {inState: 1, read: ['1', '1', null], write: ['1', '1', '0'], toState: 2, move: ['left', 'left', 'left']},
-       {inState: 1, read: [null, null, null], write: [null, null, null], toState: 10, move: ['right', 'right', 'right']},
-
-       {inState: 2, read: [null, '0', null], write: [null, '0', '1'], toState: 1, move: ['not', 'left', 'left']},
-       {inState: 2, read: [null, '1', null], write: [null, '1', '0'], toState: 2, move: ['not', 'left', 'left']},
-       {inState: 2, read: ['0', null, null], write: ['0', null, '1'], toState: 1, move: ['left', 'not', 'left']},
-       {inState: 2, read: ['0', '0', null], write: ['0', '0', '1'], toState: 1, move: ['left', 'left', 'left']},
-       {inState: 2, read: ['0', '1', null], write: ['0', '1', '0'], toState: 2, move: ['left', 'left', 'left']},
-       {inState: 2, read: ['1', null, null], write: ['1', null, '0'], toState: 2, move: ['left', 'not', 'left']},
-       {inState: 2, read: ['1', '0', null], write: ['1', '0', '0'], toState: 2, move: ['left', 'left', 'left']},
-       {inState: 2, read: ['1', '1', null], write: ['1', '1', '1'], toState: 2, move: ['left', 'left', 'left']},
-       {inState: 2, read: [null, null, null], write: [null, null, '1'], toState: 10, move: ['right', 'right', 'not']},
-     ];
+    // this.tm.bands = [
+    //   {contentPositiveIndex: ['1', '1'], contentNegativeIndex: []},
+    //   {contentPositiveIndex: ['1', '0', '1', '0'], contentNegativeIndex: []},
+    //   {contentPositiveIndex: [], contentNegativeIndex: [], isOutputBand: true}
+    // ];
+    // this.tm.finiteStates = [10, 100];
     // this.tm.transitions = [
-    //   {inState: 0, read: [null], write: ['0'], toState: 1, move: ['right']},
-    //   {inState: 1, read: [null], write: ['1'], toState: 2, move: ['left']},
-    //   {inState: 2, read: ['0'], write: ['0'], toState: 3, move: ['left']},
-    //   {inState: 3, read: [null], write: ['1'], toState: 3, move: ['not']}
+    //    {inState: 0, read: [null, '0', null], write: [null, '0', null], toState: 0, move: ['not', 'right', 'not']},
+    //    {inState: 0, read: [null, '1', null], write: [null, '1', null], toState: 0, move: ['not', 'right', 'not']},
+    //    {inState: 0, read: ['0', null, null], write: ['0', null, null], toState: 0, move: ['right', 'not', 'not']},
+    //    {inState: 0, read: ['0', '0', null], write: ['0', '0', null], toState: 0, move: ['right', 'right', 'not']},
+    //    {inState: 0, read: ['0', '1', null], write: ['0', '1', null], toState: 0, move: ['right', 'right', 'not']},
+    //    {inState: 0, read: ['1', null, null], write: ['1', null, null], toState: 0, move: ['right', 'not', 'not']},
+    //    {inState: 0, read: ['1', '0', null], write: ['1', '0', null], toState: 0, move: ['right', 'right', 'not']},
+    //    {inState: 0, read: ['1', '1', null], write: ['1', '1', null], toState: 0, move: ['right', 'right', 'not']},
+    //    {inState: 0, read: [null, null, null], write: [null, null, null], toState: 1, move: ['left', 'left', 'not']},
+
+    //    {inState: 1, read: [null, '0', null], write: [null, '0', '0'], toState: 1, move: ['not', 'left', 'left']},
+    //    {inState: 1, read: [null, '1', null], write: [null, '1', '1'], toState: 1, move: ['not', 'left', 'left']},
+    //    {inState: 1, read: ['0', null, null], write: ['0', null, '0'], toState: 1, move: ['left', 'not', 'left']},
+    //    {inState: 1, read: ['0', '0', null], write: ['0', '0', '0'], toState: 1, move: ['left', 'left', 'left']},
+    //    {inState: 1, read: ['0', '1', null], write: ['0', '1', '1'], toState: 1, move: ['left', 'left', 'left']},
+    //    {inState: 1, read: ['1', null, null], write: ['1', null, '1'], toState: 1, move: ['left', 'not', 'left']},
+    //    {inState: 1, read: ['1', '0', null], write: ['1', '0', '1'], toState: 1, move: ['left', 'left', 'left']},
+    //    {inState: 1, read: ['1', '1', null], write: ['1', '1', '0'], toState: 2, move: ['left', 'left', 'left']},
+    //    {inState: 1, read: [null, null, null], write: [null, null, null], toState: 10, move: ['right', 'right', 'right']},
+
+    //    {inState: 2, read: [null, '0', null], write: [null, '0', '1'], toState: 1, move: ['not', 'left', 'left']},
+    //    {inState: 2, read: [null, '1', null], write: [null, '1', '0'], toState: 2, move: ['not', 'left', 'left']},
+    //    {inState: 2, read: ['0', null, null], write: ['0', null, '1'], toState: 1, move: ['left', 'not', 'left']},
+    //    {inState: 2, read: ['0', '0', null], write: ['0', '0', '1'], toState: 1, move: ['left', 'left', 'left']},
+    //    {inState: 2, read: ['0', '1', null], write: ['0', '1', '0'], toState: 2, move: ['left', 'left', 'left']},
+    //    {inState: 2, read: ['1', null, null], write: ['1', null, '0'], toState: 2, move: ['left', 'not', 'left']},
+    //    {inState: 2, read: ['1', '0', null], write: ['1', '0', '0'], toState: 2, move: ['left', 'left', 'left']},
+    //    {inState: 2, read: ['1', '1', null], write: ['1', '1', '1'], toState: 2, move: ['left', 'left', 'left']},
+    //    {inState: 2, read: [null, null, null], write: [null, null, '1'], toState: 10, move: ['right', 'right', 'not']},
     // ];
     this.prepare();
-    this.deriveAlphabetFromTransitions();
     const valid = this.validate();
     if (!valid) {
       this.log('start', 'validation failed, canceled run');
       return;
     }
     this.run(100);
+  }
+
+  addTransition(): void {
+    const dialogRef = this.dialog.open(AddTransitionDialogComponent, {data: {bandCount: this.tm.bands.length}});
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.tm.transitions = [... this.tm.transitions, result];
+      }
+    });
+  }
+
+  removeTransition(transition: TMTransition): void {
+    this.tm.transitions = this.tm.transitions.filter(trans => trans !== transition);
+  }
+
+  addBand(index: number): void {
+    const newBand: TMBand = {contentPositiveIndex: [], contentNegativeIndex: []};
+    this.tm.bands.splice(index, 0, newBand);
+    this.tm.transitions.forEach(trans => {
+      trans.read.splice(index, 0, null);
+      trans.write.splice(index, 0, null);
+      trans.move.splice(index, 0, 'not');
+    });
+  }
+
+  removeBand(index: number): void {
+    this.tm.bands.splice(index, 1);
+    this.tm.transitions.forEach(trans => {
+      trans.read.splice(index, 1);
+      trans.write.splice(index, 1);
+      trans.move.splice(index, 1);
+    });
   }
 
   prepare(): void {
