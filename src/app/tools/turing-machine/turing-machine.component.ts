@@ -13,7 +13,7 @@ import { TuringMachineService } from './turing-machine.service';
 export class TuringMachineComponent implements OnInit {
 
   tm: TuringMachineConfig = {
-    bands: [{contentPositiveIndex: []}],
+    bands: [{contentPositiveIndex: [], contentNegativeIndex: []}],
     alphabet: '',
     transitions: []
   };
@@ -24,6 +24,9 @@ export class TuringMachineComponent implements OnInit {
     bandInputs: ['']
   };
   running = false;
+  validationResult: string;
+  valid = false;
+  designer = true;
 
   constructor(public dialog: MatDialog, public tmService: TuringMachineService) { }
 
@@ -65,13 +68,23 @@ export class TuringMachineComponent implements OnInit {
     //    {inState: 2, read: ['1', '1', null], write: ['1', '1', '1'], toState: 2, move: ['left', 'left', 'left']},
     //    {inState: 2, read: [null, null, null], write: [null, null, '1'], toState: 10, move: ['right', 'right', 'not']},
     // ];
+    // this.prepare();
+    // const valid = this.validate();
+    // if (!valid) {
+    //   this.log('start', 'validation failed, canceled run');
+    //   return;
+    // }
+    // this.run(100);
+  }
+
+  runMachine(): void {
     this.prepare();
-    const valid = this.validate();
-    if (!valid) {
-      this.log('start', 'validation failed, canceled run');
+    this.valid = this.validate();
+    if (!this.valid) {
       return;
     }
-    this.run(100);
+    this.designer = false;
+    this.run(this.runConfig.maxSteps, this.runConfig.asyncMode ? this.runConfig.delay : null);
   }
 
   addTransition(): void {
@@ -113,6 +126,8 @@ export class TuringMachineComponent implements OnInit {
     this.tm.state = 0;
     this.tm.bands.forEach(band => {
       band.position = 0;
+      const index = this.tm.bands.findIndex(x => x === band);
+      band.contentPositiveIndex = this.runConfig.bandInputs[index].split('');
     });
   }
 
@@ -173,27 +188,28 @@ export class TuringMachineComponent implements OnInit {
   validate(): boolean {
     const invalidState = this.tm.state === null || this.tm.state === undefined || this.tm.state < 0;
     if (invalidState) {
-      this.log('validate', 'fail: invalidState');
+      this.validationResult = 'Validation failed: The turing machine\'s state is invalid.';
       return false;
     }
     const undefinedBands = this.tm.bands.some(band => !band);
     if (undefinedBands) {
-      this.log('validate', 'fail: undefinedBands');
+      this.validationResult = 'Validation failed: There are undefined bands.';
       return false;
     }
     const multipleOutputBands = this.tm.bands.filter(band => band.isOutputBand).length > 1;
     if (multipleOutputBands) {
-      this.log('validate', 'fail: multipleOutputBands');
+      this.validationResult = 'Validation failed: There are multiple bands marked as output.';
       return false;
     }
     const invalidBandPositions = this.tm.bands.some(band => band.position === null || band.position === undefined || band.position < 0);
     if (invalidBandPositions) {
-      this.log('validate', 'fail: invalidBandPositions');
+      this.validationResult = 'Validation failed: Some pointer position on a band is invalid.';
       return false;
     }
-    const invalidAlphabet = !this.tm.alphabet || this.tm.alphabet.length < 1 || this.tm.alphabet.includes(' ');
+    const invalidAlphabet = this.tm.alphabet === null || this.tm.alphabet === undefined ||
+      this.tm.alphabet.includes(' ') || this.tm.alphabet.includes('␢');
     if (invalidAlphabet) {
-      this.log('validate', 'fail: invalidAlphabet');
+      this.validationResult = 'Validation failed: The alphabet is invalid.';
       return false;
     }
     const invalidBandContents = this.tm.bands.some(band =>
@@ -207,7 +223,8 @@ export class TuringMachineComponent implements OnInit {
       )))
     );
     if (invalidBandContents) {
-      this.log('validate', 'fail: invalidBandContents');
+      this.validationResult = 'Validation failed: Some band contains invalid data.';
+      console.log(this.tm.bands);
       return false;
     }
     const invalidTransitions = this.tm.transitions.some(trans =>
@@ -222,10 +239,10 @@ export class TuringMachineComponent implements OnInit {
       ) || !trans.move
     );
     if (invalidTransitions) {
-      this.log('validate', 'fail: invalidTransitions');
+      this.validationResult = 'Validation failed: Some transition is invalid.';
       return false;
     }
-    this.log('validate', 'success');
+    this.validationResult = 'Validation succeeded.';
     return true;
   }
 

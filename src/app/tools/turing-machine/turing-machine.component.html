@@ -1,88 +1,97 @@
-<h1>Turing Machine</h1>
-<h2>Machine Configuration</h2>
-<div class="config-form">
-  <h3>General</h3>
-  <span class="mb-s"><button mat-flat-button color="primary" (click)="deriveAlphabetFromTransitions()">generate from 𝛿</button></span>
-  <mat-form-field appearance="fill">
-    <mat-label>alphabet Σ (each character is one alphabet symbol)</mat-label>
-    <input [(ngModel)]="tm.alphabet" matInput>
-  </mat-form-field>
-  <mat-form-field appearance="fill">
-    <mat-label>final states F (comma separated list of integers)</mat-label>
-    <input [(ngModel)]="tm.finiteStates" matInput>
-  </mat-form-field>
-  <h3>Bands</h3>
-  <ng-container *ngFor="let band of tm.bands; let i=index">
-    <span class="mb-s"><button mat-flat-button color="accent" (click)="addBand(i)">add band here</button></span>
-    <mat-card class="mb-s">
-      <mat-card-content>
-        <div>
-          <div>band {{i}}</div>
-          <button class="float-right" mat-icon-button [disabled]="tm.bands.length === 1" (click)="removeBand(i)"><mat-icon>delete</mat-icon></button>
-        </div>
-        <div class="flex-list">
-          <mat-checkbox [(checked)]="band.isOutputBand" class="example-margin">use as output band</mat-checkbox>
-          <mat-checkbox [(checked)]="band.nonNegative" class="example-margin">limit band to the left (only infinite to the right)</mat-checkbox>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </ng-container>
-  <span class="mb-s"><button mat-flat-button color="accent" (click)="addBand(tm.bands.length)">add band here</button></span>
-  <h3>Transitions</h3>
-  <table mat-table [dataSource]="tm.transitions" class="mat-elevation-z8 mb-s">
-    <ng-container matColumnDef="inState">
-      <th mat-header-cell *matHeaderCellDef> in state </th>
-      <td mat-cell *matCellDef="let element"> {{element.inState}} </td>
+<ng-container *ngIf="designer">
+  <h1>Turing Machine (Designer)</h1>
+  <h2>Machine Configuration</h2>
+  <div class="config-form">
+    <h3>General</h3>
+    <span class="mb-s"><button mat-flat-button color="accent" (click)="deriveAlphabetFromTransitions()">generate from 𝛿</button></span>
+    <mat-form-field appearance="fill">
+      <mat-label>alphabet Σ (each character is one alphabet symbol)</mat-label>
+      <input [(ngModel)]="tm.alphabet" matInput>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>final states F (comma separated list of integers)</mat-label>
+      <input [(ngModel)]="tm.finiteStates" matInput>
+    </mat-form-field>
+    <h3>Bands</h3>
+    <ng-container *ngFor="let band of tm.bands; let i=index">
+      <span class="mb-s"><button mat-flat-button color="accent" (click)="addBand(i)">add band here</button></span>
+      <mat-card class="mb-s">
+        <mat-card-content>
+          <div>
+            <div>band {{i}}</div>
+            <button class="float-right" mat-icon-button [disabled]="tm.bands.length === 1" (click)="removeBand(i)"><mat-icon>delete</mat-icon></button>
+          </div>
+          <div class="flex-list">
+            <mat-checkbox [(checked)]="band.isOutputBand" class="example-margin">use as output band</mat-checkbox>
+            <mat-checkbox [(checked)]="band.nonNegative" class="example-margin">limit band to the left (only infinite to the right)</mat-checkbox>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </ng-container>
-    <ng-container matColumnDef="read">
-      <th mat-header-cell *matHeaderCellDef> read </th>
-      <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.read)}} </td>
-    </ng-container>
-    <ng-container matColumnDef="write">
-      <th mat-header-cell *matHeaderCellDef> write </th>
-      <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.write)}} </td>
-    </ng-container>
-    <ng-container matColumnDef="toState">
-      <th mat-header-cell *matHeaderCellDef> go to state </th>
-      <td mat-cell *matCellDef="let element"> {{element.toState}} </td>
-    </ng-container>
-    <ng-container matColumnDef="move">
-      <th mat-header-cell *matHeaderCellDef> move head </th>
-      <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.move)}} </td>
-    </ng-container>
-    <ng-container matColumnDef="arrow">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let element">→</td>
-    </ng-container>
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let element">
-        <button class="float-right" mat-icon-button (click)="removeTransition(element)"><mat-icon>delete</mat-icon></button>
-      </td>
-    </ng-container>
+    <span class="mb-s"><button mat-flat-button color="accent" (click)="addBand(tm.bands.length)">add band here</button></span>
+    <h3>Transitions</h3>
+    <table mat-table [dataSource]="tm.transitions" class="mat-elevation-z8 mb-s">
+      <ng-container matColumnDef="inState">
+        <th mat-header-cell *matHeaderCellDef> in state </th>
+        <td mat-cell *matCellDef="let element"> {{element.inState}} </td>
+      </ng-container>
+      <ng-container matColumnDef="read">
+        <th mat-header-cell *matHeaderCellDef> read </th>
+        <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.read)}} </td>
+      </ng-container>
+      <ng-container matColumnDef="write">
+        <th mat-header-cell *matHeaderCellDef> write </th>
+        <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.write)}} </td>
+      </ng-container>
+      <ng-container matColumnDef="toState">
+        <th mat-header-cell *matHeaderCellDef> go to state </th>
+        <td mat-cell *matCellDef="let element"> {{element.toState}} </td>
+      </ng-container>
+      <ng-container matColumnDef="move">
+        <th mat-header-cell *matHeaderCellDef> move head </th>
+        <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.move)}} </td>
+      </ng-container>
+      <ng-container matColumnDef="arrow">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">→</td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+          <button class="float-right" mat-icon-button (click)="removeTransition(element)"><mat-icon>delete</mat-icon></button>
+        </td>
+      </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="['inState', 'read', 'arrow', 'write', 'toState', 'move', 'actions']"></tr>
-    <tr mat-row *matRowDef="let row; columns: ['inState', 'read', 'arrow', 'write', 'toState', 'move', 'actions'];"></tr>
-  </table>
-  <span class="mb-s"><button mat-flat-button color="accent" (click)="addTransition()">add transition</button></span>
-</div>
-<h2>Run Configuration</h2>
-<div class="config-form">
-  <div>
-    <mat-checkbox [(checked)]="runConfig.asyncMode" class="example-margin">delay steps by </mat-checkbox>
-    <mat-form-field class="inline-form-field">
-      <input [(ngModel)]="runConfig.delay" matInput>
-    </mat-form-field>
-    ms
+      <tr mat-header-row *matHeaderRowDef="['inState', 'read', 'arrow', 'write', 'toState', 'move', 'actions']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['inState', 'read', 'arrow', 'write', 'toState', 'move', 'actions'];"></tr>
+    </table>
+    <span class="mb-s"><button mat-flat-button color="accent" (click)="addTransition()">add transition</button></span>
   </div>
-  <div>
-    maximum # steps: <mat-form-field class="inline-form-field">
-      <input [(ngModel)]="runConfig.maxSteps" matInput>
+  <h2>Run Configuration</h2>
+  <div class="config-form">
+    <div>
+      <mat-checkbox [(checked)]="runConfig.asyncMode" class="example-margin">delay steps by </mat-checkbox>
+      <mat-form-field class="inline-form-field">
+        <input [(ngModel)]="runConfig.delay" matInput>
+      </mat-form-field>
+      ms
+    </div>
+    <div>
+      maximum # steps: <mat-form-field class="inline-form-field">
+        <input [(ngModel)]="runConfig.maxSteps" matInput>
+      </mat-form-field>
+    </div>
+    <h3>Band inputs</h3>
+    <mat-form-field *ngFor="let band of tm.bands; let i=index">
+      <mat-label>band {{i}}</mat-label>
+      <input [(ngModel)]="runConfig.bandInputs[i]" matInput>
     </mat-form-field>
   </div>
-  <h3>Band inputs</h3>
-  <mat-form-field *ngFor="let band of tm.bands; let i=index">
-    <mat-label>band {{i}}</mat-label>
-    <input [(ngModel)]="runConfig.bandInputs[i]" matInput>
-  </mat-form-field>
-</div>
+
+  <span class="mt"><button mat-flat-button color="primary" (click)="runMachine()">run machine</button></span>
+  <span>{{validationResult}}</span>
+</ng-container>
+<ng-container *ngIf="!designer">
+  <h1>Turing Machine (Running)</h1>
+  <span class="mt"><button mat-flat-button color="primary" [disabled]="running" (click)="designer = true">back to designer</button></span>
+</ng-container>
