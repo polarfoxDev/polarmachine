@@ -2,6 +2,7 @@ import { animate, style, transition, trigger } from '@angular/animations';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AddTransitionDialogComponent } from './add-transition-dialog/add-transition-dialog.component';
+import { AddTransitionMultiDialogComponent } from './add-transition-multi-dialog/add-transition-multi-dialog.component';
 import { TMBand, TMMoveDirection, TMTransition, TuringMachineConfig } from './turing-machine-config.interface';
 import { TuringMachineRunConfig } from './turing-machine-run-config.interface';
 import { TMStep, TMStepBandSymbol } from './turing-machine-run-step.interface';
@@ -80,52 +81,7 @@ export class TuringMachineComponent implements OnInit {
 
   constructor(public dialog: MatDialog, public tmService: TuringMachineService) { }
 
-  ngOnInit(): void {
-    // this.tm.bands = [
-    //   {contentPositiveIndex: ['1', '1'], contentNegativeIndex: []},
-    //   {contentPositiveIndex: ['1', '0', '1', '0'], contentNegativeIndex: []},
-    //   {contentPositiveIndex: [], contentNegativeIndex: [], isOutputBand: true}
-    // ];
-    // this.tm.finalStates = [10, 100];
-    // this.tm.transitions = [
-    //    {inState: 0, read: [null, '0', null], write: [null, '0', null], toState: 0, move: ['not', 'right', 'not']},
-    //    {inState: 0, read: [null, '1', null], write: [null, '1', null], toState: 0, move: ['not', 'right', 'not']},
-    //    {inState: 0, read: ['0', null, null], write: ['0', null, null], toState: 0, move: ['right', 'not', 'not']},
-    //    {inState: 0, read: ['0', '0', null], write: ['0', '0', null], toState: 0, move: ['right', 'right', 'not']},
-    //    {inState: 0, read: ['0', '1', null], write: ['0', '1', null], toState: 0, move: ['right', 'right', 'not']},
-    //    {inState: 0, read: ['1', null, null], write: ['1', null, null], toState: 0, move: ['right', 'not', 'not']},
-    //    {inState: 0, read: ['1', '0', null], write: ['1', '0', null], toState: 0, move: ['right', 'right', 'not']},
-    //    {inState: 0, read: ['1', '1', null], write: ['1', '1', null], toState: 0, move: ['right', 'right', 'not']},
-    //    {inState: 0, read: [null, null, null], write: [null, null, null], toState: 1, move: ['left', 'left', 'not']},
-
-    //    {inState: 1, read: [null, '0', null], write: [null, '0', '0'], toState: 1, move: ['not', 'left', 'left']},
-    //    {inState: 1, read: [null, '1', null], write: [null, '1', '1'], toState: 1, move: ['not', 'left', 'left']},
-    //    {inState: 1, read: ['0', null, null], write: ['0', null, '0'], toState: 1, move: ['left', 'not', 'left']},
-    //    {inState: 1, read: ['0', '0', null], write: ['0', '0', '0'], toState: 1, move: ['left', 'left', 'left']},
-    //    {inState: 1, read: ['0', '1', null], write: ['0', '1', '1'], toState: 1, move: ['left', 'left', 'left']},
-    //    {inState: 1, read: ['1', null, null], write: ['1', null, '1'], toState: 1, move: ['left', 'not', 'left']},
-    //    {inState: 1, read: ['1', '0', null], write: ['1', '0', '1'], toState: 1, move: ['left', 'left', 'left']},
-    //    {inState: 1, read: ['1', '1', null], write: ['1', '1', '0'], toState: 2, move: ['left', 'left', 'left']},
-    //    {inState: 1, read: [null, null, null], write: [null, null, null], toState: 10, move: ['right', 'right', 'right']},
-
-    //    {inState: 2, read: [null, '0', null], write: [null, '0', '1'], toState: 1, move: ['not', 'left', 'left']},
-    //    {inState: 2, read: [null, '1', null], write: [null, '1', '0'], toState: 2, move: ['not', 'left', 'left']},
-    //    {inState: 2, read: ['0', null, null], write: ['0', null, '1'], toState: 1, move: ['left', 'not', 'left']},
-    //    {inState: 2, read: ['0', '0', null], write: ['0', '0', '1'], toState: 1, move: ['left', 'left', 'left']},
-    //    {inState: 2, read: ['0', '1', null], write: ['0', '1', '0'], toState: 2, move: ['left', 'left', 'left']},
-    //    {inState: 2, read: ['1', null, null], write: ['1', null, '0'], toState: 2, move: ['left', 'not', 'left']},
-    //    {inState: 2, read: ['1', '0', null], write: ['1', '0', '0'], toState: 2, move: ['left', 'left', 'left']},
-    //    {inState: 2, read: ['1', '1', null], write: ['1', '1', '1'], toState: 2, move: ['left', 'left', 'left']},
-    //    {inState: 2, read: [null, null, null], write: [null, null, '1'], toState: 10, move: ['right', 'right', 'not']},
-    // ];
-    // this.prepare();
-    // const valid = this.validate();
-    // if (!valid) {
-    //   this.log('start', 'validation failed, canceled run');
-    //   return;
-    // }
-    // this.run(100);
-  }
+  ngOnInit(): void { }
 
   runMachine(): void {
     this.prepare();
@@ -140,7 +96,6 @@ export class TuringMachineComponent implements OnInit {
   stopMachine(): void {
     this.running = false;
     clearInterval(this.interval);
-    this.log('stopMachine', 'canceled run');
   }
 
   addTransition(): void {
@@ -152,6 +107,14 @@ export class TuringMachineComponent implements OnInit {
     });
   }
 
+  addTransitions(): void {
+    const dialogRef = this.dialog.open(AddTransitionMultiDialogComponent, {data: {bandCount: this.tm.bands.length}});
+    dialogRef.afterClosed().subscribe(results => {
+      if (results && results.length > 0) {
+        this.tm.transitions = [... this.tm.transitions, ... results];
+      }
+    });
+  }
   removeTransition(transToRemove: TMTransition): void {
     this.tm.transitions = this.tm.transitions.filter(trans => trans !== transToRemove);
   }
@@ -178,7 +141,6 @@ export class TuringMachineComponent implements OnInit {
   }
 
   prepare(): void {
-    this.log('prepare', 'preparing TM before running...');
     this.tm.state = 0;
     this.tm.bands.forEach(band => {
       band.position = 0;
@@ -197,7 +159,6 @@ export class TuringMachineComponent implements OnInit {
   }
 
   afterRun(): void {
-    this.log('afterRun', 'execution finished');
     this.history = [ ... this.history, {
       trans: null,
       state: this.tm.state,
@@ -237,7 +198,6 @@ export class TuringMachineComponent implements OnInit {
   }
 
   run(maxSteps: number, delay: number): void {
-    this.log('run', 'starting with a maximum of ' + maxSteps + ' steps in ' + (delay ? 'async' : 'instant') + ' mode');
     this.running = true;
     let steps = 0;
     this.interval = setInterval(() => {
@@ -292,7 +252,6 @@ export class TuringMachineComponent implements OnInit {
     );
     if (invalidBandContents) {
       this.validationResult = 'Validation failed: Some band contains invalid data (e.g. non-alphabet symbols).';
-      console.log(this.tm.bands);
       return false;
     }
     const invalidTransitions = this.tm.transitions.some(trans =>
@@ -321,10 +280,6 @@ export class TuringMachineComponent implements OnInit {
       trans.write.forEach(symbol => symbols.push(symbol));
     });
     this.tm.alphabet = [... (new Set(symbols))].join('');
-  }
-
-  log(service: string, action: string): void {
-    console.log('@' + service + ': ' + action);
   }
 
   step(delayMove: number): void {

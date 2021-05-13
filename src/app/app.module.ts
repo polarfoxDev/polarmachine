@@ -20,6 +20,8 @@ import { AppComponent } from './app.component';
 import { OverviewComponent } from './overview/overview.component';
 import { TuringMachineComponent } from './tools/turing-machine/turing-machine.component';
 import { AddTransitionDialogComponent } from './tools/turing-machine/add-transition-dialog/add-transition-dialog.component';
+// tslint:disable-next-line: max-line-length
+import { AddTransitionMultiDialogComponent } from './tools/turing-machine/add-transition-multi-dialog/add-transition-multi-dialog.component';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
@@ -27,7 +29,8 @@ import { FormsModule } from '@angular/forms';
     AppComponent,
     OverviewComponent,
     TuringMachineComponent,
-    AddTransitionDialogComponent
+    AddTransitionDialogComponent,
+    AddTransitionMultiDialogComponent
   ],
   imports: [
     BrowserModule,

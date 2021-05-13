@@ -65,7 +65,10 @@
       <tr mat-header-row *matHeaderRowDef="['inState', 'read', 'arrow', 'write', 'toState', 'move', 'actions']"></tr>
       <tr mat-row *matRowDef="let row; columns: ['inState', 'read', 'arrow', 'write', 'toState', 'move', 'actions'];"></tr>
     </table>
-    <span class="mb-s"><button mat-flat-button color="accent" (click)="addTransition()">add transition</button></span>
+    <div class="mb-s">
+      <span class="mr-s"><button mat-flat-button color="accent" (click)="addTransition()">add transition</button></span>
+      <span><button mat-flat-button (click)="addTransitions()">add multiple transitions</button></span>
+    </div>
   </div>
   <h2>Run Configuration</h2>
   <div class="config-form">
