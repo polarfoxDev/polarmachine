@@ -75,6 +75,8 @@ export class TuringMachineComponent implements OnInit {
   validationResult: string;
   valid = false;
   designer = true;
+  forcedStop = false;
+  noTransStop = false;
 
   constructor(public dialog: MatDialog, public tmService: TuringMachineService) { }
 
@@ -84,7 +86,7 @@ export class TuringMachineComponent implements OnInit {
     //   {contentPositiveIndex: ['1', '0', '1', '0'], contentNegativeIndex: []},
     //   {contentPositiveIndex: [], contentNegativeIndex: [], isOutputBand: true}
     // ];
-    // this.tm.finiteStates = [10, 100];
+    // this.tm.finalStates = [10, 100];
     // this.tm.transitions = [
     //    {inState: 0, read: [null, '0', null], write: [null, '0', null], toState: 0, move: ['not', 'right', 'not']},
     //    {inState: 0, read: [null, '1', null], write: [null, '1', null], toState: 0, move: ['not', 'right', 'not']},
@@ -182,10 +184,16 @@ export class TuringMachineComponent implements OnInit {
       band.position = 0;
       const index = this.tm.bands.findIndex(x => x === band);
       band.contentPositiveIndex = this.runConfig.bandInputs[index].split('').map(x => x === ' ' ? null : x);
+      band.contentNegativeIndex = [];
       band.recentValueChange = false;
+      if (!band.contentPositiveIndex[0]) {
+        band.contentPositiveIndex[0] = null;
+      }
     });
     this.history = [];
     this.output = null;
+    this.forcedStop = false;
+    this.noTransStop = false;
   }
 
   afterRun(): void {
@@ -193,27 +201,30 @@ export class TuringMachineComponent implements OnInit {
     this.history = [ ... this.history, {
       trans: null,
       state: this.tm.state,
-      bandContents: this.tm.bands.map(band => this.getBandContent(band))
+      bandContents: this.tm.bands.map(band => this.getBandContent(band, true))
     }];
     const outputBand = this.tm.bands.find(band => band.isOutputBand);
     if (!outputBand) {
       return;
     }
-    const content = this.getBandContent(outputBand).map(x => x.symbol).join('');
-    this.output = content.replace(/^\␢+|\␢+$/g, '');
+    this.output = this.getBandContent(outputBand).map(x => x.symbol).join('');
   }
 
-  getBandContent(band: TMBand): TMStepBandSymbol[] {
+  getBandContent(band: TMBand, positionMode = false): TMStepBandSymbol[] {
     let lowestIndex = 0;
     if (!band.nonNegative) {
       lowestIndex = -band.contentNegativeIndex.length;
     }
-    const symbols: TMStepBandSymbol[] = [];
-    for (let position = lowestIndex - 1; position <= band.contentPositiveIndex.length; position++) {
+    let symbols: TMStepBandSymbol[] = [];
+    for (let position = lowestIndex - 1; position < band.contentPositiveIndex.length + 1; position++) {
       symbols.push({
-        symbol: this.getSymbol(band, position),
+        symbol: this.getSymbol(band, position, '␢'),
         isCurrentPosition: band.position === position
       });
+    }
+    if (!positionMode) {
+      const symbolString = symbols.map(x => x.symbol).join('').replace(/^␢+|␢+$/g, '');
+      symbols = symbolString.split('').map(x => ({symbol: x, isCurrentPosition: false}));
     }
     return symbols;
   }
@@ -231,13 +242,14 @@ export class TuringMachineComponent implements OnInit {
     let steps = 0;
     this.interval = setInterval(() => {
       steps++;
-      this.running = this.step(steps, delay / 2);
-      if (!this.running || steps >= maxSteps) {
+      if (!this.running || steps > maxSteps) {
         clearInterval(this.interval);
         this.running = false;
-        this.log('run(async)', 'machine stopped');
+        this.forcedStop = true;
         this.afterRun();
+        return;
       }
+      this.step(delay / 2);
     }, delay);
   }
 
@@ -315,57 +327,50 @@ export class TuringMachineComponent implements OnInit {
     console.log('@' + service + ': ' + action);
   }
 
-  step(stepIndex: number, delayMove: number): boolean {
+  step(delayMove: number): void {
     const currentState = this.tm.state;
-    this.log('step(' + stepIndex + ')', 'in state ' + currentState);
     const read = this.tm.bands.map(
       band => band.position < 0 ? band.contentNegativeIndex[-band.position - 1] : band.contentPositiveIndex[band.position]
     );
-    this.log('step(' + stepIndex + ')', 'read ' + JSON.stringify(read));
     const matchingTransition = this.tm.transitions.find(
       trans => trans.inState === currentState && JSON.stringify(trans.read) === JSON.stringify(read)
     );
     if (!matchingTransition) {
-      this.log('step(' + stepIndex + ')', 'no matching transition found');
-      return false;
+      clearInterval(this.interval);
+      this.running = false;
+      this.noTransStop = true;
+      this.afterRun();
+      return;
     }
     this.history = [ ... this.history, {
       trans: matchingTransition,
       state: currentState,
-      bandContents: this.tm.bands.map(band => this.getBandContent(band))
+      bandContents: this.tm.bands.map(band => this.getBandContent(band, true))
     }];
-    this.log('step(' + stepIndex + ')', 'use transition with index ' + this.tm.transitions.indexOf(matchingTransition));
     for (let index = 0; index < this.tm.bands.length; index++) {
       // to start value change animation
       this.tm.bands[index].recentValueChange = read[index]?.toString() !== matchingTransition.write[index]?.toString();
       const position = this.tm.bands[index].position;
       if (position < 0) {
         this.tm.bands[index].contentNegativeIndex[-position - 1] = matchingTransition.write[index];
-        // tslint:disable-next-line: max-line-length
-        this.log('step(' + stepIndex + ')', 'on band ' + index + ' at position ' + position + ' (left array index ' + (-position - 1).toString() + ') wrote ' + matchingTransition.write[index]);
       } else {
         this.tm.bands[index].contentPositiveIndex[position] = matchingTransition.write[index];
-        // tslint:disable-next-line: max-line-length
-        this.log('step(' + stepIndex + ')', 'on band ' + index + ' at position ' + (position).toString() + ' wrote ' + matchingTransition.write[index]);
       }
       setTimeout(() => {
         // to stop value change animation
         this.tm.bands[index].recentValueChange = false;
         const newPos = this.tm.bands[index].position + this.directionToIndexChange(matchingTransition.move[index]);
-        if (this.tm.bands[index].nonNegative && newPos < 0) {
-          this.log('step(' + stepIndex + ')', 'on band ' + index + ' forbidden move ' + matchingTransition.move[index] + ' (band is non-negative)');
-        } else {
+        if (!(this.tm.bands[index].nonNegative && newPos < 0)) {
           this.tm.bands[index].position = newPos;
-          this.log('step(' + stepIndex + ')', 'on band ' + index + ' move ' + matchingTransition.move[index]);
+        }
+        this.tm.state = matchingTransition.toState;
+        if (this.tm.finalStates?.includes(matchingTransition.toState)) {
+          clearInterval(this.interval);
+          this.running = false;
+          this.afterRun();
         }
       }, delayMove);
     }
-    this.tm.state = matchingTransition.toState;
-    if (this.tm.finiteStates?.includes(this.tm.state)) {
-      this.log('step(' + stepIndex + ')', 'reached finite state ' + this.tm.state);
-      return false;
-    }
-    return true;
   }
 
   directionToIndexChange(direction: TMMoveDirection): number {

@@ -3,7 +3,7 @@ export interface TuringMachineConfig {
   alphabet: string;
   transitions: TMTransition[];
   state?: number;
-  finiteStates?: number[];
+  finalStates?: number[];
 }
 export interface TMBand {
   contentPositiveIndex: string[];
