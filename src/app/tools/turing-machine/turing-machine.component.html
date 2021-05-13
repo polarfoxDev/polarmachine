@@ -92,8 +92,12 @@
   <span>{{validationResult}}</span>
 </ng-container>
 <ng-container *ngIf="!designer">
-  <h1>Turing Machine ({{running ? 'Running' : 'Stopped'}})</h1>
 
+  <h1>Turing Machine ({{running ? 'Running' : 'Stopped'}})</h1>
+  <h2>Bands</h2>
+
+  <span class="mt mr-s"><button mat-flat-button color="primary" [disabled]="!running" (click)="stopMachine()">cancel execution</button></span>
+  <span class="mt"><button mat-flat-button color="primary" [disabled]="running" (click)="designer = true">back to designer</button></span>
   <div class="bandstates">
     <div class="band" *ngFor="let band of tm.bands; let i = index;">
       <div class="label">band {{i}}:</div>
@@ -109,5 +113,54 @@
     </div>
   </div>
 
-  <span class="mt"><button mat-flat-button color="primary" [disabled]="running" (click)="designer = true">back to designer</button></span>
+  <h2>Step history</h2>
+
+  <div class="history">
+    <table mat-table [dataSource]="history" class="mat-elevation-z8 mb-s">
+      <ng-container matColumnDef="stepIndex">
+        <th mat-header-cell *matHeaderCellDef> step # </th>
+        <td mat-cell *matCellDef="let element; let i = index">
+          <ng-container *ngIf="!element.trans">stops</ng-container>
+          <ng-container *ngIf="element.trans">{{i+1}}</ng-container>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="inState">
+        <th mat-header-cell *matHeaderCellDef> in state </th>
+        <td mat-cell *matCellDef="let element"> {{element.state}} </td>
+      </ng-container>
+      <ng-container matColumnDef="usingTransition">
+        <th mat-header-cell *matHeaderCellDef> transition </th>
+        <td mat-cell *matCellDef="let element">
+          <ng-container *ngIf="element.trans">
+            {{tmService.symbolsToString(element.trans.read)}}
+            →
+            {{tmService.symbolsToString(element.trans.write)}}
+            q:={{element.trans.toState}}
+            move {{tmService.symbolsToString(element.trans.move)}}
+          </ng-container><ng-container *ngIf="!element.trans">(none)</ng-container>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="bandContents">
+        <th mat-header-cell *matHeaderCellDef> bandContents </th>
+        <td mat-cell *matCellDef="let element">
+          <div *ngFor="let band of element.bandContents">
+            <span *ngFor="let symbol of band" [class.bold]="symbol.isCurrentPosition">{{symbol.symbol}}</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="['stepIndex', 'inState', 'bandContents', 'usingTransition']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['stepIndex', 'inState', 'bandContents', 'usingTransition'];"></tr>
+    </table>
+  </div>
+
+  <ng-container *ngIf="!running">
+    <h2>Machine output</h2>
+    <ng-container *ngIf="output !== null">
+      <ng-container *ngIf="output.length > 0">{{output}}</ng-container>
+      <ng-container *ngIf="output.length === 0">␢</ng-container>
+    </ng-container>
+    <ng-container *ngIf="output === null">(no output band)</ng-container>
+  </ng-container>
+
 </ng-container>

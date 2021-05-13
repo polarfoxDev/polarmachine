@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddTransitionDialogComponent } from './add-transition-dialog/add-transition-dialog.component';
 import { TMBand, TMMoveDirection, TMTransition, TuringMachineConfig } from './turing-machine-config.interface';
 import { TuringMachineRunConfig } from './turing-machine-run-config.interface';
+import { TMStep, TMStepBandSymbol } from './turing-machine-run-step.interface';
 import { TuringMachineService } from './turing-machine.service';
 
 @Component({
@@ -68,6 +69,9 @@ export class TuringMachineComponent implements OnInit {
     bandInputs: ['']
   };
   running = false;
+  interval: any;
+  history: TMStep[];
+  output: string;
   validationResult: string;
   valid = false;
   designer = true;
@@ -131,6 +135,12 @@ export class TuringMachineComponent implements OnInit {
     this.run(this.runConfig.maxSteps, this.runConfig.delay);
   }
 
+  stopMachine(): void {
+    this.running = false;
+    clearInterval(this.interval);
+    this.log('stopMachine', 'canceled run');
+  }
+
   addTransition(): void {
     const dialogRef = this.dialog.open(AddTransitionDialogComponent, {data: {bandCount: this.tm.bands.length}});
     dialogRef.afterClosed().subscribe(result => {
@@ -174,29 +184,38 @@ export class TuringMachineComponent implements OnInit {
       band.contentPositiveIndex = this.runConfig.bandInputs[index].split('').map(x => x === ' ' ? null : x);
       band.recentValueChange = false;
     });
+    this.history = [];
+    this.output = null;
   }
 
   afterRun(): void {
     this.log('afterRun', 'execution finished');
+    this.history = [ ... this.history, {
+      trans: null,
+      state: this.tm.state,
+      bandContents: this.tm.bands.map(band => this.getBandContent(band))
+    }];
     const outputBand = this.tm.bands.find(band => band.isOutputBand);
     if (!outputBand) {
-      this.log('afterRun', 'no output band');
       return;
     }
+    const content = this.getBandContent(outputBand).map(x => x.symbol).join('');
+    this.output = content.replace(/^\␢+|\␢+$/g, '');
+  }
+
+  getBandContent(band: TMBand): TMStepBandSymbol[] {
     let lowestIndex = 0;
-    if (!outputBand.nonNegative) {
-      lowestIndex = -outputBand.contentNegativeIndex.length;
+    if (!band.nonNegative) {
+      lowestIndex = -band.contentNegativeIndex.length;
     }
-    let output = '';
-    for (let position = lowestIndex; position < outputBand.contentPositiveIndex.length; position++) {
-      output += this.getSymbol(outputBand, position, '␢');
+    const symbols: TMStepBandSymbol[] = [];
+    for (let position = lowestIndex - 1; position <= band.contentPositiveIndex.length; position++) {
+      symbols.push({
+        symbol: this.getSymbol(band, position),
+        isCurrentPosition: band.position === position
+      });
     }
-    output = output.trim();
-    if (output.length === 0) {
-      this.log('afterRun', 'output band empty');
-      return;
-    }
-    this.log('afterRun', 'output: ' + output);
+    return symbols;
   }
 
   getSymbol(band: TMBand, position: number, blank: string = '␢'): string {
@@ -210,11 +229,11 @@ export class TuringMachineComponent implements OnInit {
     this.log('run', 'starting with a maximum of ' + maxSteps + ' steps in ' + (delay ? 'async' : 'instant') + ' mode');
     this.running = true;
     let steps = 0;
-    const interval = setInterval(() => {
+    this.interval = setInterval(() => {
       steps++;
       this.running = this.step(steps, delay / 2);
       if (!this.running || steps >= maxSteps) {
-        clearInterval(interval);
+        clearInterval(this.interval);
         this.running = false;
         this.log('run(async)', 'machine stopped');
         this.afterRun();
@@ -297,18 +316,24 @@ export class TuringMachineComponent implements OnInit {
   }
 
   step(stepIndex: number, delayMove: number): boolean {
-    this.log('step(' + stepIndex + ')', 'in state ' + this.tm.state);
+    const currentState = this.tm.state;
+    this.log('step(' + stepIndex + ')', 'in state ' + currentState);
     const read = this.tm.bands.map(
       band => band.position < 0 ? band.contentNegativeIndex[-band.position - 1] : band.contentPositiveIndex[band.position]
     );
     this.log('step(' + stepIndex + ')', 'read ' + JSON.stringify(read));
     const matchingTransition = this.tm.transitions.find(
-      trans => trans.inState === this.tm.state && JSON.stringify(trans.read) === JSON.stringify(read)
+      trans => trans.inState === currentState && JSON.stringify(trans.read) === JSON.stringify(read)
     );
     if (!matchingTransition) {
       this.log('step(' + stepIndex + ')', 'no matching transition found');
       return false;
     }
+    this.history = [ ... this.history, {
+      trans: matchingTransition,
+      state: currentState,
+      bandContents: this.tm.bands.map(band => this.getBandContent(band))
+    }];
     this.log('step(' + stepIndex + ')', 'use transition with index ' + this.tm.transitions.indexOf(matchingTransition));
     for (let index = 0; index < this.tm.bands.length; index++) {
       // to start value change animation
