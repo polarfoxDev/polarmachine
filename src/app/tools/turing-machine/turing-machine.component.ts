@@ -69,6 +69,7 @@ export class TuringMachineComponent implements OnInit {
     maxSteps: 60,
     bandInputs: ['']
   };
+  finalStatesCSL = '';
   running = false;
   interval: any;
   history: TMStep[];
@@ -141,6 +142,7 @@ export class TuringMachineComponent implements OnInit {
   }
 
   prepare(): void {
+    this.tm.finalStates = this.finalStatesCSL.split(',').map(x => Number(x));
     this.tm.state = 0;
     this.tm.bands.forEach(band => {
       band.position = 0;
@@ -311,7 +313,9 @@ export class TuringMachineComponent implements OnInit {
       } else {
         this.tm.bands[index].contentPositiveIndex[position] = matchingTransition.write[index];
       }
-      setTimeout(() => {
+    }
+    setTimeout(() => {
+      for (let index = 0; index < this.tm.bands.length; index++) {
         // to stop value change animation
         this.tm.bands[index].recentValueChange = false;
         const newPos = this.tm.bands[index].position + this.directionToIndexChange(matchingTransition.move[index]);
@@ -319,13 +323,13 @@ export class TuringMachineComponent implements OnInit {
           this.tm.bands[index].position = newPos;
         }
         this.tm.state = matchingTransition.toState;
-        if (this.tm.finalStates?.includes(matchingTransition.toState)) {
-          clearInterval(this.interval);
-          this.running = false;
-          this.afterRun();
-        }
-      }, delayMove);
-    }
+      }
+      if (this.tm.finalStates?.includes(matchingTransition.toState)) {
+        clearInterval(this.interval);
+        this.running = false;
+        this.afterRun();
+      }
+    }, delayMove);
   }
 
   directionToIndexChange(direction: TMMoveDirection): number {

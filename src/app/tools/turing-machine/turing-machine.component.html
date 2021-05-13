@@ -10,7 +10,7 @@
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>final states (comma separated list of integers)</mat-label>
-      <input [(ngModel)]="tm.finalStates" matInput>
+      <input [(ngModel)]="finalStatesCSL" matInput>
     </mat-form-field>
     <h3>Bands</h3>
     <ng-container *ngFor="let band of tm.bands; let i=index">
