@@ -1,5 +1,5 @@
 <ng-container *ngIf="designer">
-  <h1>Turing Machine (Designer)</h1>
+  <h1>Turing Machine (Setup)</h1>
   <h2>Machine Configuration</h2>
   <div class="config-form">
     <h3>General</h3>
@@ -22,8 +22,8 @@
             <button class="float-right" mat-icon-button [disabled]="tm.bands.length === 1" (click)="removeBand(i)"><mat-icon>delete</mat-icon></button>
           </div>
           <div class="flex-list">
-            <mat-checkbox [(checked)]="band.isOutputBand" class="example-margin">use as output band</mat-checkbox>
-            <mat-checkbox [(checked)]="band.nonNegative" class="example-margin">limit band to the left (only infinite to the right)</mat-checkbox>
+            <mat-checkbox [(ngModel)]="band.isOutputBand" class="example-margin">use as output band</mat-checkbox>
+            <mat-checkbox [(ngModel)]="band.nonNegative" class="example-margin">limit band to the left (only infinite to the right)</mat-checkbox>
           </div>
         </mat-card-content>
       </mat-card>
@@ -70,7 +70,7 @@
   <h2>Run Configuration</h2>
   <div class="config-form">
     <div>
-      <mat-checkbox [(checked)]="runConfig.asyncMode" class="example-margin">delay steps by </mat-checkbox>
+      delay steps by
       <mat-form-field class="inline-form-field">
         <input [(ngModel)]="runConfig.delay" matInput>
       </mat-form-field>
@@ -83,7 +83,7 @@
     </div>
     <h3>Band inputs</h3>
     <mat-form-field *ngFor="let band of tm.bands; let i=index">
-      <mat-label>band {{i}}</mat-label>
+      <mat-label>band {{i}} (use whitespace for blank)</mat-label>
       <input [(ngModel)]="runConfig.bandInputs[i]" matInput>
     </mat-form-field>
   </div>
@@ -92,6 +92,22 @@
   <span>{{validationResult}}</span>
 </ng-container>
 <ng-container *ngIf="!designer">
-  <h1>Turing Machine (Running)</h1>
+  <h1>Turing Machine ({{running ? 'Running' : 'Stopped'}})</h1>
+
+  <div class="bandstates">
+    <div class="band" *ngFor="let band of tm.bands; let i = index;">
+      <div class="label">band {{i}}:</div>
+      <div>
+        <ng-container *ngFor="let pos of [band.position - 4, band.position - 3, band.position - 2, band.position - 1, band.position, band.position + 1, band.position + 2, band.position + 3, band.position + 4]; let i = index">
+          <div *ngIf="!(band.nonNegative && pos < 0); else invisible" [class.pulsing]="i === 4 && band.recentValueChange" [@inOutAnimation] class="cell" id="band{{i}}pos{{pos}}"> {{ getSymbol(band, pos) }} </div>
+          <ng-template #invisible><div class="cell invisible" [@inOutAnimationInvisible]>&nbsp;</div></ng-template>
+        </ng-container>
+      </div>
+      <div class="below">
+        <div class="head"></div>
+      </div>
+    </div>
+  </div>
+
   <span class="mt"><button mat-flat-button color="primary" [disabled]="running" (click)="designer = true">back to designer</button></span>
 </ng-container>

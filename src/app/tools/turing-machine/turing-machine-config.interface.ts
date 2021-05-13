@@ -11,6 +11,7 @@ export interface TMBand {
   position?: number;
   isOutputBand?: boolean;
   nonNegative?: boolean;
+  recentValueChange?: boolean;
 }
 export interface TMTransition {
   inState: number;
