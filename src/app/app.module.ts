@@ -23,6 +23,7 @@ import { AddTransitionDialogComponent } from './tools/turing-machine/add-transit
 // tslint:disable-next-line: max-line-length
 import { AddTransitionMultiDialogComponent } from './tools/turing-machine/add-transition-multi-dialog/add-transition-multi-dialog.component';
 import { FormsModule } from '@angular/forms';
+import { LoopComponent } from './tools/loop/loop.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { FormsModule } from '@angular/forms';
     OverviewComponent,
     TuringMachineComponent,
     AddTransitionDialogComponent,
-    AddTransitionMultiDialogComponent
+    AddTransitionMultiDialogComponent,
+    LoopComponent
   ],
   imports: [
     BrowserModule,
