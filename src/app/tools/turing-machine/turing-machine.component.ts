@@ -11,7 +11,7 @@ import { TuringMachineService } from './turing-machine.service';
 @Component({
   selector: 'app-turing-machine',
   templateUrl: './turing-machine.component.html',
-  styleUrls: ['./turing-machine.component.styl'],
+  styleUrls: ['./turing-machine.component.scss'],
   animations: [
     trigger(
       'inOutAnimation',

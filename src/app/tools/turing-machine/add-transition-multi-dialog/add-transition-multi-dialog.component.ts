@@ -6,7 +6,7 @@ import { TuringMachineService } from '../turing-machine.service';
 @Component({
   selector: 'app-add-transition-multi-dialog',
   templateUrl: './add-transition-multi-dialog.component.html',
-  styleUrls: ['./add-transition-multi-dialog.component.styl']
+  styleUrls: ['./add-transition-multi-dialog.component.scss']
 })
 export class AddTransitionMultiDialogComponent implements OnInit {
 
