@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { LoopInstruction, LoopLoopInstruction, LoopMacro, LoopProgram, LoopSetValueInstruction } from './loop-program.interface';
+import { LoopDefineMacroInstruction, LoopInstruction, LoopLoopInstruction, LoopMacro, LoopMacroInstruction, LoopMacroLoopInstruction, LoopMacroRunProgramInstruction, LoopProgram, LoopSetValueInstruction } from './loop-program.interface';
 
 @Component({
   selector: 'app-loop',
@@ -11,7 +11,7 @@ export class LoopComponent implements OnInit {
   designer = true;
   codeInput = '';
   program: LoopProgram = [];
-  macros: LoopMacro[] = [];
+  macros: LoopDefineMacroInstruction[] = [];
   remainingLines: string[];
 
   constructor() { }
@@ -20,15 +20,15 @@ export class LoopComponent implements OnInit {
 
   parse(): void {
     this.remainingLines = this.codeInput.split(/[\n;]/).filter(line => line.length > 0);
-    this.program = this.parseSubRoutine();
+    this.program = this.parseSubRoutine(true);
     console.log(this.program);
   }
 
-  parseSubRoutine(): LoopProgram {
+  parseSubRoutine(isBaseLevel = false): LoopProgram {
     const subRoutine: LoopProgram = [];
     let nextInstruction: LoopInstruction;
     do {
-      nextInstruction = this.parseInstruction();
+      nextInstruction = this.parseInstruction(isBaseLevel);
       if (nextInstruction) {
         subRoutine.push(nextInstruction);
       }
@@ -36,25 +36,68 @@ export class LoopComponent implements OnInit {
     return subRoutine;
   }
 
-  parseInstruction(): LoopInstruction | null {
+  parseMacroRoutine(): LoopMacro {
+    const subRoutine: LoopMacro = [];
+    let nextInstruction: LoopMacroInstruction;
+    do {
+      nextInstruction = this.parseMacroInstruction();
+      if (nextInstruction) {
+        subRoutine.push(nextInstruction);
+      }
+    } while (nextInstruction);
+    return subRoutine;
+  }
+
+  parseMacroInstruction(): LoopMacroInstruction | null {
     if (this.remainingLines.length === 0) {
-      console.log('possible parse error if not level 0');
+      console.log('parse error', 'end of file inside macro');
       return null;
     }
     const nextLine = this.remainingLines.splice(0, 1)[0].trim();
-    if (nextLine.match(/^LOOP ((?!LOOP|MACRO|DEFINE|USE|DO)([a-zA-Z0-9]+)) DO$/gi)) {
-      return this.parseLoop(nextLine);
+    if (nextLine.match(/^LOOP ((?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO|[0-9]+)(([a-zA-Z0-9]+)|(%[0-9]+))) DO$/gi)) {
+      return this.parseMacroLoop(nextLine);
     }
     if (nextLine.match(
-      /^((?!LOOP|MACRO|DEFINE|USE|DO)([a-zA-Z0-9]+))\s:=\s((?!LOOP|MACRO|DEFINE|USE|DO)([a-zA-Z0-9]+))\s[\+\-]\s[0-9]+$/gi
+      /^((?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO|[0-9]+)(([a-zA-Z0-9]+)|(%[0-9]+)))\s:=\s((?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO|[0-9]+)(([a-zA-Z0-9]+)|(%[0-9]+)))\s[\+\-]\s%?[0-9]+$/gi
     )) {
       return this.parseSetValue(nextLine);
+    }
+    if (nextLine.match(
+      /^PROGRAM$/gi
+    )) {
+      return {} as LoopMacroRunProgramInstruction;
     }
     if (nextLine.match(/END/gi)) {
       return null;
     }
-    console.log('parse error');
-    // parse error: illegal instruction
+    console.log('parse error', 'invalid instruction inside macro', nextLine);
+  }
+
+  parseInstruction(eofAllowed = false): LoopInstruction | null {
+    if (this.remainingLines.length === 0) {
+      if (!eofAllowed) {
+        console.log('parse error', 'end of file inside loop');
+      }
+      return null;
+    }
+    const nextLine = this.remainingLines.splice(0, 1)[0].trim();
+    if (nextLine.match(/^LOOP ((?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO|[0-9]+)([a-zA-Z0-9]+)) DO$/gi)) {
+      return this.parseLoop(nextLine);
+    }
+    if (nextLine.match(
+      /^((?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO|[0-9]+)([a-zA-Z0-9]+))\s:=\s((?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO|[0-9]+)([a-zA-Z0-9]+))\s[\+\-]\s[0-9]+$/gi
+    )) {
+      return this.parseSetValue(nextLine);
+    }
+    if (nextLine.match(
+      /^DEFINE\sMACRO\s((?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO|[0-9]+)([a-zA-Z0-9]+))$/gi
+    )) {
+      return this.parseDefineMacro(nextLine);
+    }
+    if (nextLine.match(/END/gi)) {
+      return null;
+    }
+    console.log('parse error', 'invalid instruction', nextLine);
   }
 
   parseSetValue(instructionLine: string): LoopSetValueInstruction {
@@ -74,6 +117,24 @@ export class LoopComponent implements OnInit {
     return {
       loopVariable: loopVar,
       do: subRoutine
+    };
+  }
+
+  parseMacroLoop(instructionLine: string): LoopMacroLoopInstruction {
+    const loopVar = instructionLine.slice(5, instructionLine.length - 3);
+    const subRoutine: LoopMacro = this.parseMacroRoutine();
+    return {
+      loopVariable: loopVar,
+      do: subRoutine
+    };
+  }
+
+  parseDefineMacro(instructionLine: string): LoopDefineMacroInstruction {
+    const macroName = instructionLine.substring(13);
+    const subRoutine: LoopMacro = this.parseMacroRoutine();
+    return {
+      name: macroName,
+      macroCode: subRoutine
     };
   }
 
