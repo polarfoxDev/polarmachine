@@ -1,1 +1,7 @@
-<p>loop works!</p>
+<ng-container *ngIf="designer">
+  <h1>LOOP Interpreter (Setup)</h1>
+  <h2>Code Editor</h2>
+  <mat-form-field appearance="fill">
+    <textarea [(ngModel)]="codeInput" (change)="parse()" matInput></textarea>
+  </mat-form-field>
+</ng-container>
