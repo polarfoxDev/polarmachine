@@ -1,4 +1,11 @@
 <h1>Welcome to polarmachine</h1>
 <p>Choose one of the following tools available:</p>
+<mat-list role="list">
+  <mat-list-item role="listitem">
+    <button mat-raised-button color="primary" [routerLink]="'/tool/tm'">Turing machine</button>
+  </mat-list-item>
+  <mat-list-item role="listitem">
+    <button mat-raised-button color="primary" [routerLink]="'/tool/loop'">LOOP interpreter</button>
+  </mat-list-item>
+</mat-list>
 
-<button mat-raised-button color="primary" [routerLink]="'/tool/tm'">Turing machine</button>
