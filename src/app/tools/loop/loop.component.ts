@@ -8,6 +8,7 @@ import { LoopDefineMacroInstruction, LoopExecutionStep, LoopInstruction, LoopLoo
 })
 export class LoopComponent implements OnInit {
 
+  showingSyntax = true;
   codeInput = '';
   program: LoopProgram = [];
   macros: LoopDefineMacroInstruction[] = [];
