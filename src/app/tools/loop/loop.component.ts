@@ -200,7 +200,7 @@ export class LoopComponent implements OnInit {
     )) {
       return { discriminator: 'loopMacroRunProgramInstruction' };
     }
-    if (nextLine.match(/END/gi)) {
+    if (nextLine.match(/^END$/gi)) {
       return null;
     }
     this.parseErrors.push('invalid instruction inside macro: ' + nextLine);
@@ -237,7 +237,7 @@ export class LoopComponent implements OnInit {
     )) {
       return this.parseUseProgramMacro(nextLine);
     }
-    if (nextLine.match(/END/gi)) {
+    if (nextLine.match(/^END$/gi)) {
       return null;
     }
     this.parseErrors.push('invalid instruction: ' + nextLine);
