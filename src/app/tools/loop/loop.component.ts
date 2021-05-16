@@ -16,6 +16,7 @@ export class LoopComponent implements OnInit {
   parseErrors: string[] = [];
   runtimeErrors: string[] = [];
   vars: { [id: string]: number; } = {};
+  tempMacroVarNames: string[] = [];
 
   constructor() { }
 
@@ -29,6 +30,7 @@ export class LoopComponent implements OnInit {
     this.vars = {};
     this.macros = [];
     this.runtimeErrors = [];
+    this.tempMacroVarNames = [];
     this.runSubRoutine(this.program);
     console.log(this.vars);
     console.log(this.runtimeErrors);
@@ -57,6 +59,8 @@ export class LoopComponent implements OnInit {
           this.runMacro(
             this.macros.indexOf(staticMacro), staticMacro.macroCode, instruction.bindVars, instruction.constants
           );
+          this.tempMacroVarNames.forEach(macroVarName => delete this.vars[macroVarName]);
+          this.tempMacroVarNames = [];
           break;
         case 'loopUseProgramMacroInstruction':
           const programMacro = this.macros.find(x => x.name === instruction.name);
@@ -67,6 +71,8 @@ export class LoopComponent implements OnInit {
           this.runMacro(
             this.macros.indexOf(programMacro), programMacro.macroCode, instruction.bindVars, instruction.constants, instruction.program
           );
+          this.tempMacroVarNames.forEach(macroVarName => delete this.vars[macroVarName]);
+          this.tempMacroVarNames = [];
           break;
         default:
           break;
@@ -78,7 +84,9 @@ export class LoopComponent implements OnInit {
     const bindIndex = Number(bindName.substr(1));
     const varName = bindVars[bindIndex];
     if (varName === undefined) {
-      return '@macro(' + macroId + ')::' + bindName.substr(1);
+      const macroVarName = '@macro(' + macroId + ')::' + bindName.substr(1);
+      this.tempMacroVarNames.push(macroVarName);
+      return macroVarName;
     }
     return varName;
   }
