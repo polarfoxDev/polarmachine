@@ -108,7 +108,7 @@ END
       </td>
     </ng-container>
     <ng-container matColumnDef="instructionDetails">
-      <th mat-header-cell *matHeaderCellDef> instruction Details </th>
+      <th mat-header-cell *matHeaderCellDef> instruction </th>
       <td mat-cell *matCellDef="let element">
         <ng-container *ngIf="element.instruction?.discriminator === 'loopSetValueInstruction'">
           {{element.instruction.setVariable}} ← {{element.instruction.useVariable}}{{element.instruction.useConstant}}
