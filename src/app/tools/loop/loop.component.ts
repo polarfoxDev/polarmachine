@@ -15,7 +15,7 @@ export class LoopComponent implements OnInit {
   remainingLines: string[];
   parseErrors: string[] = [];
   runtimeErrors: string[] = [];
-  vars = [];
+  vars: { [id: string]: number; } = {};
 
   constructor() { }
 
@@ -26,11 +26,12 @@ export class LoopComponent implements OnInit {
     if (this.parseErrors.length > 0) {
       return;
     }
-    this.vars = [];
+    this.vars = {};
     this.macros = [];
     this.runtimeErrors = [];
     this.runSubRoutine(this.program);
     console.log(this.vars);
+    console.log(this.runtimeErrors);
   }
 
   runSubRoutine(program: LoopProgram): void {
@@ -53,7 +54,9 @@ export class LoopComponent implements OnInit {
             this.runtimeErrors.push('macro not defined before usage: ' + instruction.name);
             break;
           }
-          this.runMacro(staticMacro.macroCode, instruction.bindVars, instruction.constants);
+          this.runMacro(
+            this.macros.indexOf(staticMacro), staticMacro.macroCode, instruction.bindVars, instruction.constants
+          );
           break;
         case 'loopUseProgramMacroInstruction':
           const programMacro = this.macros.find(x => x.name === instruction.name);
@@ -61,7 +64,9 @@ export class LoopComponent implements OnInit {
             this.runtimeErrors.push('macro not defined before usage: ' + instruction.name);
             break;
           }
-          this.runMacro(programMacro.macroCode, instruction.bindVars, instruction.constants, instruction.program);
+          this.runMacro(
+            this.macros.indexOf(programMacro), programMacro.macroCode, instruction.bindVars, instruction.constants, instruction.program
+          );
           break;
         default:
           break;
@@ -69,43 +74,44 @@ export class LoopComponent implements OnInit {
     });
   }
 
-  getMacroVarName(bindName: string, bindVars: string[]): string {
-    const bindIndex = Number(bindName.substring(1));
+  getMacroVarName(macroId: number, bindName: string, bindVars: string[]): string {
+    const bindIndex = Number(bindName.substr(1));
     const varName = bindVars[bindIndex];
     if (varName === undefined) {
-      return '@macro::' + bindName.substring(1);
+      return '@macro(' + macroId + ')::' + bindName.substr(1);
     }
     return varName;
   }
 
   getMacroConstant(bindName: string, constants: number[], fallback: number = 0): number {
     let value: number;
-    if (!bindName.startsWith('#')) {
-      value = Number(bindName);
+    const sign = Number(bindName.substr(0, 1) + '1');
+    if (!bindName.substr(1).startsWith('#')) {
+      value = Number(bindName.substr(1));
     } else {
-      const bindIndex = Number(bindName.substring(1));
+      const bindIndex = Number(bindName.substr(2));
       value = constants[bindIndex];
     }
     if (value === undefined || isNaN(value)) {
       return fallback;
     }
-    return value;
+    return sign * value;
   }
 
-  runMacro(macro: LoopMacro, bindVars: string[], constants: number[], callback?: LoopProgram): void {
+  runMacro(macroId: number, macro: LoopMacro, bindVars: string[], constants: number[], callback?: LoopProgram): void {
     macro.forEach(instruction => {
       switch (instruction.discriminator) {
         case 'loopSetValueInstruction':
           this.setVar(
-            this.getMacroVarName(instruction.setVariable, bindVars),
-            this.getVar(this.getMacroVarName(instruction.useVariable, bindVars))
+            this.getMacroVarName(macroId, instruction.setVariable, bindVars),
+            this.getVar(this.getMacroVarName(macroId, instruction.useVariable, bindVars))
             +
             this.getMacroConstant(instruction.useConstant, constants)
           );
           break;
         case 'loopMacroLoopInstruction':
-          for (let index = 0; index < this.getVar(this.getMacroVarName(instruction.loopVariable, bindVars)); index++) {
-            this.runMacro(instruction.do, bindVars, constants, callback);
+          for (let index = 0; index < this.getVar(this.getMacroVarName(macroId, instruction.loopVariable, bindVars)); index++) {
+            this.runMacro(macroId, instruction.do, bindVars, constants, callback);
           }
           break;
         case 'loopMacroRunProgramInstruction':
@@ -113,6 +119,7 @@ export class LoopComponent implements OnInit {
             this.runtimeErrors.push('no subroutine provided for a macro using the PROGRAM instruction');
             break;
           }
+          console.log('run subroutine from macro');
           this.runSubRoutine(callback);
           break;
         default:
@@ -122,6 +129,7 @@ export class LoopComponent implements OnInit {
   }
 
   setVar(name: string, value: number): void {
+    if (value < 0) { value = 0; }
     this.vars[name] = value;
   }
 
@@ -181,7 +189,7 @@ export class LoopComponent implements OnInit {
     if (nextLine.match(
       /^PROGRAM$/gi
     )) {
-      return {} as LoopMacroRunProgramInstruction;
+      return { discriminator: 'loopMacroRunProgramInstruction' };
     }
     if (nextLine.match(/END/gi)) {
       return null;
@@ -258,7 +266,7 @@ export class LoopComponent implements OnInit {
   }
 
   parseDefineMacro(instructionLine: string): LoopDefineMacroInstruction {
-    const macroName = instructionLine.substring(13);
+    const macroName = instructionLine.substr(13);
     const subRoutine: LoopMacro = this.parseMacroRoutine();
     return {
       name: macroName,
@@ -269,12 +277,12 @@ export class LoopComponent implements OnInit {
 
   parseUseStaticMacro(instructionLine: string): LoopUseStaticMacroInstruction {
     const macroName = instructionLine.slice(10, instructionLine.indexOf(' ', 10));
-    const parts = instructionLine.substring(instructionLine.indexOf(' ', 10) + 1).split(' ');
+    const parts = instructionLine.substr(instructionLine.indexOf(' ', 10) + 1).split(' ');
     const bindVars: string[] = [];
     const constants: number[] = [];
     parts.forEach(part => {
       if (part.startsWith('&')) {
-        bindVars.push(part.substring(1));
+        bindVars.push(part.substr(1));
       } else {
         constants.push(Number(part));
       }
@@ -294,7 +302,7 @@ export class LoopComponent implements OnInit {
     const constants: number[] = [];
     parts.forEach(part => {
       if (part.startsWith('&')) {
-        bindVars.push(part.substring(1));
+        bindVars.push(part.substr(1));
       } else {
         constants.push(Number(part));
       }
