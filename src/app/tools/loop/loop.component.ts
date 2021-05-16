@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { LoopDefineMacroInstruction, LoopInstruction, LoopLoopInstruction, LoopMacro, LoopMacroInstruction, LoopMacroLoopInstruction, LoopMacroRunProgramInstruction, LoopProgram, LoopSetValueInstruction } from './loop-program.interface';
+import { LoopDefineMacroInstruction, LoopInstruction, LoopLoopInstruction, LoopMacro, LoopMacroInstruction, LoopMacroLoopInstruction, LoopMacroRunProgramInstruction, LoopProgram, LoopSetValueInstruction, LoopUseProgramMacroInstruction, LoopUseStaticMacroInstruction } from './loop-program.interface';
 
 @Component({
   selector: 'app-loop',
@@ -54,11 +54,11 @@ export class LoopComponent implements OnInit {
       return null;
     }
     const nextLine = this.remainingLines.splice(0, 1)[0].trim();
-    if (nextLine.match(/^LOOP ((?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO|[0-9]+)(([a-zA-Z0-9]+)|(%[0-9]+))) DO$/gi)) {
+    if (nextLine.match(/^LOOP (%[0-9]+) DO$/gi)) {
       return this.parseMacroLoop(nextLine);
     }
     if (nextLine.match(
-      /^((?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO|[0-9]+)(([a-zA-Z0-9]+)|(%[0-9]+)))\s:=\s((?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO|[0-9]+)(([a-zA-Z0-9]+)|(%[0-9]+)))\s[\+\-]\s%?[0-9]+$/gi
+      /^(%[0-9]+)\s:=\s(%[0-9]+)\s[\+\-]\s\#?[0-9]+$/gi
     )) {
       return this.parseSetValue(nextLine);
     }
@@ -93,6 +93,16 @@ export class LoopComponent implements OnInit {
       /^DEFINE\sMACRO\s((?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO|[0-9]+)([a-zA-Z0-9]+))$/gi
     )) {
       return this.parseDefineMacro(nextLine);
+    }
+    if (nextLine.match(
+      /^USE\sMACRO\s((?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO|[0-9]+)([a-zA-Z0-9]+))( (?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO|[0-9]+)&([a-zA-Z0-9]+))*( (?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO)([0-9]+))*$/gi
+    )) {
+      return this.parseUseStaticMacro(nextLine);
+    }
+    if (nextLine.match(
+      /^USE\sMACRO\s((?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO|[0-9]+)([a-zA-Z0-9]+))( (?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO|[0-9]+)&([a-zA-Z0-9]+))*( (?!LOOP|END|STATIC|PROGRAM|MACRO|DEFINE|USE|DO)([0-9]+))* DO$/gi
+    )) {
+      return this.parseUseProgramMacro(nextLine);
     }
     if (nextLine.match(/END/gi)) {
       return null;
@@ -135,6 +145,46 @@ export class LoopComponent implements OnInit {
     return {
       name: macroName,
       macroCode: subRoutine
+    };
+  }
+
+  parseUseStaticMacro(instructionLine: string): LoopUseStaticMacroInstruction {
+    const macroName = instructionLine.slice(10, instructionLine.indexOf(' ', 10));
+    const parts = instructionLine.substring(instructionLine.indexOf(' ', 10) + 1).split(' ');
+    const bindVars: string[] = [];
+    const bindConsts: number[] = [];
+    parts.forEach(part => {
+      if (part.startsWith('&')) {
+        bindVars.push(part.substring(1));
+      } else {
+        bindConsts.push(Number(part));
+      }
+    });
+    return {
+      name: macroName,
+      bindVars,
+      bindConsts
+    };
+  }
+
+  parseUseProgramMacro(instructionLine: string): LoopUseProgramMacroInstruction {
+    const macroName = instructionLine.slice(10, instructionLine.indexOf(' ', 10));
+    const parts = instructionLine.slice(instructionLine.indexOf(' ', 10) + 1, instructionLine.length - 3).split(' ');
+    const bindVars: string[] = [];
+    const bindConsts: number[] = [];
+    parts.forEach(part => {
+      if (part.startsWith('&')) {
+        bindVars.push(part.substring(1));
+      } else {
+        bindConsts.push(Number(part));
+      }
+    });
+    const program = this.parseSubRoutine();
+    return {
+      name: macroName,
+      bindVars,
+      bindConsts,
+      program
     };
   }
 
