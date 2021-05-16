@@ -5,11 +5,11 @@
   <a mat-button [routerLink]="'/'">{{title}} {{version}}</a>
   <span class="menu-spacer"></span>
   <!-- <button mat-icon-button>
-    <mat-icon>favorite</mat-icon>
-  </button>
-  <button mat-icon-button>
-    <mat-icon>share</mat-icon>
+    <mat-icon>code</mat-icon>
   </button> -->
+  <a target="_blank" [href]="issuesLink" mat-icon-button>
+    <mat-icon>bug_report</mat-icon>
+  </a>
 </mat-toolbar>
 <mat-drawer-container class="main-wrapper" autosize>
   <mat-drawer #drawer class="main-sidenav" mode="side">

@@ -9,4 +9,5 @@ import { environment } from 'src/environments/environment';
 export class AppComponent {
   title = 'polarmachine';
   version = environment.version;
+  issuesLink = environment.issuesLink;
 }
