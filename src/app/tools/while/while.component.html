@@ -1,1 +1,173 @@
-<p>while works!</p>
+<h1>WHILE Interpreter</h1>
+<h2>Syntax Hints <mat-slide-toggle [(ngModel)]="showingSyntax"></mat-slide-toggle></h2>
+<div class="syntaxbox" *ngIf="showingSyntax">
+  <h3>General hints</h3>
+  <div class="syntaxblock">
+    Line breaks and semicolons can be used equivalently.<br/>
+    Whitespace before or after instructions can be used for better overview and will be trimmed while parsing.<br/>
+    You can also use empty lines for better optical separation of blocks.<br/>
+    Variable and macro names have to start with a-z/A-Z, but can contain numbers as well.<br/>
+    Reserved syntactic words are disallowed as variable name.<br/>
+    Inputs will be in variables <var>input0</var>, <var>input1</var>, ...<br/>
+    For output, use the variable <var>output</var>
+  </div>
+  <h3>Basic instructions</h3>
+  <div class="syntaxblock">
+    <h4>value assignments:</h4>
+    <pre>
+// Syntax: <var>variableNameA</var> := <var>variableNameB</var> +/- <var>constantNaturalNumber</var>
+// Examples:
+x := x - 3
+iterations := iterations + 1
+    </pre>
+    <h4>while:</h4>
+    <pre>
+// WHILE <var>variableName</var> DO ; <var>innerInstructions</var> ; END
+// Example 1:
+WHILE x DO
+  x := x - 1
+END
+// Example 2:
+WHILE outer DO
+  outer := outer - 1
+  WHILE inner DO
+    inner := inner - 1
+    outer := outer - 10
+  END
+END
+    </pre>
+  </div>
+  <h3>Macros</h3>
+  <div class="syntaxblock">
+    For easier use of logic you need often (like IF, SUM, MULT, ...) you can define macros with a specific syntax. It is currently not allowed to call a macro inside of another macro.
+    <h4>macro definitions:</h4>
+    <pre>
+// Syntax: DEFINE MACRO <var>macroName</var> ; <var>innerInstructions</var> ; END
+// Example 1:
+DEFINE MACRO setXtoC
+  %0 := %1 + #0           // access parametrized constants with #N where N is the constant's index (see usage)
+END
+// Example 2:
+DEFINE MACRO ifNotZero
+  WHILE %0 DO             // access parametrized vars with %N where N is the bind index (see usage)
+    %1 := %100 + 1        // if N>|parametrizedVars|, %N := 0 → creates new var for macro scope only
+  END
+  WHILE %1 DO
+    %1 := %1 - 1
+    PROGRAM               // execute callback part of macro usage
+  END
+END
+    </pre>
+    <h4>macro usage:</h4>
+    <pre>
+// Syntax (no callback): USE MACRO <var>macroName</var> &<var>var1</var> &<var>var2</var> <var>...</var> <var>constNat1</var> <var>constNat2</var> <var>...</var>
+// Example:
+USE MACRO setXtoC seven 7
+// Syntax (with callback): USE MACRO <var>macroName</var> &<var>var1</var> &<var>var2</var> <var>...</var> <var>constNat1</var> <var>constNat2</var> <var>...</var> DO ; <var>innerInstructions</var> ; END
+// Example
+USE MACRO ifNotZero &x DO // always use & before variables, do not for constant numbers
+  z := z + 1
+END
+    </pre>
+  </div>
+
+  <br/>
+</div>
+<h2>Code Editor</h2>
+<mat-form-field appearance="fill">
+  <mat-label>while code</mat-label>
+  <textarea [(ngModel)]="codeInput" (change)="parse()" matInput></textarea>
+</mat-form-field>
+<br/>
+<mat-form-field appearance="fill">
+  <mat-label>program inputs (comma separated natural numbers)</mat-label>
+  <input [(ngModel)]="valueInputString" matInput/>
+</mat-form-field><br/>
+<span *ngIf="parseErrors.length > 0">{{parseErrors[0]}}</span><br/>
+<button mat-flat-button color="primary" (click)="prepareAndRun()">run</button>
+
+<br/><br/>
+<h2>Execution history</h2>
+
+<div *ngIf="runtimeErrors.length > 0">
+  {{runtimeErrors[0]}}
+</div>
+
+<div class="history" *ngIf="runtimeErrors.length === 0">
+  Output: {{vars['output']}}
+  <table mat-table [dataSource]="history" class="mat-elevation-z8 mb-s">
+    <ng-container matColumnDef="stepIndex">
+      <th mat-header-cell *matHeaderCellDef> step # </th>
+      <td mat-cell *matCellDef="let element; let i = index">
+        <ng-container *ngIf="element.instruction">{{i+1}}</ng-container>
+        <ng-container *ngIf="!element.instruction">stops</ng-container>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="scope">
+      <th mat-header-cell *matHeaderCellDef> scope </th>
+      <td mat-cell *matCellDef="let element">
+        <ng-container *ngIf="element.instruction"> {{element.scope}} </ng-container>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="instructionDetails">
+      <th mat-header-cell *matHeaderCellDef> instruction </th>
+      <td mat-cell *matCellDef="let element">
+        <ng-container *ngIf="element.instruction?.discriminator === 'whileSetValueInstruction'">
+          {{element.instruction.setVariable}} ← {{element.instruction.useVariable}}{{element.instruction.useConstant}}
+        </ng-container>
+        <ng-container *ngIf="element.instruction?.discriminator === 'whileWhileInstruction'">
+          while {{element.instruction.whileVariable}} > 0
+        </ng-container>
+        <ng-container *ngIf="element.instruction?.discriminator === 'whileMacroWhileInstruction'">
+          while {{element.instruction.whileVariable}} > 0
+        </ng-container>
+        <ng-container *ngIf="element.instruction?.discriminator === 'whileMacroRunProgramInstruction'">
+          run callback program
+        </ng-container>
+        <ng-container *ngIf="element.instruction?.discriminator === 'whileDefineMacroInstruction'">
+          define macro "{{element.instruction.name}}"
+        </ng-container>
+        <ng-container *ngIf="element.instruction?.discriminator === 'whileUseStaticMacroInstruction'">
+          use macro "{{element.instruction.name}}"
+          <ng-container *ngIf="element.instruction.bindVars.length > 0">
+            with vars <ng-container *ngFor="let variable of element.instruction.bindVars; let i=index">
+              <ng-container *ngIf="i !== 0">,</ng-container>
+              %{{i}}:={{variable}}
+            </ng-container>
+          </ng-container>
+          <ng-container *ngIf="element.instruction.constants.length > 0">
+            with constants <ng-container *ngFor="let constant of element.instruction.constants; let i=index">
+              <ng-container *ngIf="i !== 0">,</ng-container>
+              #{{i}}:={{constant}}
+            </ng-container>
+          </ng-container>
+        </ng-container>
+        <ng-container *ngIf="element.instruction?.discriminator === 'whileUseProgramMacroInstruction'">
+          use macro "{{element.instruction.name}}"
+          <ng-container *ngIf="element.instruction.bindVars.length > 0">
+            with vars <ng-container *ngFor="let variable of element.instruction.bindVars; let i=index">
+              <ng-container *ngIf="i !== 0">,</ng-container>
+              %{{i}}:={{variable}}
+            </ng-container>
+          </ng-container>
+          <ng-container *ngIf="element.instruction.constants.length > 0">
+            with constants <ng-container *ngFor="let constant of element.instruction.constants; let i=index">
+              <ng-container *ngIf="i !== 0">,</ng-container>
+              #{{i}}:={{constant}}
+            </ng-container>
+          </ng-container>
+          and a callback program
+        </ng-container>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="vars">
+      <th mat-header-cell *matHeaderCellDef> variables </th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.vars | json }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="['stepIndex', 'scope', 'instructionDetails', 'vars']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['stepIndex', 'scope', 'instructionDetails', 'vars'];"></tr>
+  </table>
+</div>
