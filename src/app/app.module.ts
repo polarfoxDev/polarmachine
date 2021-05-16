@@ -26,6 +26,7 @@ import { AddTransitionDialogComponent } from './tools/turing-machine/add-transit
 import { AddTransitionMultiDialogComponent } from './tools/turing-machine/add-transition-multi-dialog/add-transition-multi-dialog.component';
 import { FormsModule } from '@angular/forms';
 import { LoopComponent } from './tools/loop/loop.component';
+import { WhileComponent } from './tools/while/while.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { LoopComponent } from './tools/loop/loop.component';
     TuringMachineComponent,
     AddTransitionDialogComponent,
     AddTransitionMultiDialogComponent,
-    LoopComponent
+    LoopComponent,
+    WhileComponent
   ],
   imports: [
     BrowserModule,
