@@ -9,7 +9,8 @@
     Variable and macro names have to start with a-z/A-Z, but can contain numbers as well.<br/>
     Reserved syntactic words are disallowed as variable name.<br/>
     Inputs will be in variables <var>input0</var>, <var>input1</var>, ...<br/>
-    For output, use the variable <var>output</var>
+    For output, use the variable <var>output</var><br/>
+    Because WHILE could run into infinite loops, you have to set a maximum amount of steps before execution cancels.
   </div>
   <h3>Basic instructions</h3>
   <div class="syntaxblock">
@@ -83,6 +84,10 @@ END
   <mat-label>program inputs (comma separated natural numbers)</mat-label>
   <input [(ngModel)]="valueInputString" matInput/>
 </mat-form-field><br/>
+<mat-form-field class="inline-form-field">
+  <mat-label>maximum # steps</mat-label>
+  <input [(ngModel)]="maxStepsInputString" matInput>
+</mat-form-field><br/>
 <span *ngIf="parseErrors.length > 0">{{parseErrors[0]}}</span><br/>
 <button mat-flat-button color="primary" (click)="prepareAndRun()">run</button>
 
@@ -93,8 +98,8 @@ END
   {{runtimeErrors[0]}}
 </div>
 
-<div class="history" *ngIf="runtimeErrors.length === 0">
-  Output: {{vars['output']}}
+<div class="history">
+  <span *ngIf="runtimeErrors.length === 0">Output: {{vars['output']}}</span>
   <table mat-table [dataSource]="history" class="mat-elevation-z8 mb-s">
     <ng-container matColumnDef="stepIndex">
       <th mat-header-cell *matHeaderCellDef> step # </th>

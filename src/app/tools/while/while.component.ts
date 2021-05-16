@@ -31,6 +31,10 @@ export class WhileComponent implements OnInit {
   tempMacroVarNames: string[] = [];
   history: WhileExecutionStep[] = [];
   valueInputString = '';
+  maxStepsInputString = '100';
+  maxSteps: number;
+  readonly maxStepsLimit = 1000;
+  stepCount = 0;
 
   constructor() { }
 
@@ -46,9 +50,15 @@ export class WhileComponent implements OnInit {
     this.runtimeErrors = [];
     this.tempMacroVarNames = [];
     this.history = [];
+    this.stepCount = 0;
     this.valueInputString.split(',').forEach((x, i) => this.setVar('input' + i, Number(x.trim())));
     if (Object.values(this.vars).some(x => isNaN(x))) {
       this.parseErrors.push('Invalid input');
+      return;
+    }
+    this.maxSteps = Number(this.maxStepsInputString);
+    if (isNaN(this.maxSteps) || this.maxSteps < 1 || this.maxSteps > this.maxStepsLimit) {
+      this.parseErrors.push('maximum # steps has to be between 1 and ' + this.maxStepsLimit);
       return;
     }
     this.setVar('output', 0);
@@ -58,13 +68,18 @@ export class WhileComponent implements OnInit {
 
   runSubRoutine(program: WhileProgram): void {
     program.forEach(instruction => {
+      this.stepCount++;
+      if (this.stepCount > this.maxSteps) {
+        this.runtimeErrors.push('Exceeded maximum number of steps');
+        return;
+      }
       this.history.push({instruction, vars: {... this.vars}, scope: 'main'});
       switch (instruction.discriminator) {
         case 'whileSetValueInstruction':
           this.setVar(instruction.setVariable, this.getVar(instruction.useVariable) + Number(instruction.useConstant));
           break;
         case 'whileWhileInstruction':
-          while (this.getVar(instruction.whileVariable) > 0) {
+          while (this.getVar(instruction.whileVariable) > 0 && this.stepCount <= this.maxSteps) {
             this.runSubRoutine(instruction.do);
           }
           break;
@@ -129,6 +144,11 @@ export class WhileComponent implements OnInit {
 
   runMacro(macroId: number, macro: WhileMacro, bindVars: string[], constants: number[], callback?: WhileProgram): void {
     macro.forEach(instruction => {
+      this.stepCount++;
+      if (this.stepCount > this.maxSteps) {
+        this.runtimeErrors.push('Exceeded maximum number of steps');
+        return;
+      }
       this.history.push({instruction, vars: {... this.vars}, scope: '@macro(' + macroId + ')'});
       switch (instruction.discriminator) {
         case 'whileSetValueInstruction':
@@ -140,7 +160,7 @@ export class WhileComponent implements OnInit {
           );
           break;
         case 'whileMacroWhileInstruction':
-          while (this.getVar(this.getMacroVarName(macroId, instruction.whileVariable, bindVars)) > 0) {
+          while (this.getVar(this.getMacroVarName(macroId, instruction.whileVariable, bindVars)) > 0 && this.stepCount <= this.maxSteps) {
             this.runMacro(macroId, instruction.do, bindVars, constants, callback);
           }
           break;
