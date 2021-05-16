@@ -1,5 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { LoopDefineMacroInstruction, LoopExecutionStep, LoopInstruction, LoopLoopInstruction, LoopMacro, LoopMacroInstruction, LoopMacroLoopInstruction, LoopProgram, LoopSetValueInstruction, LoopUseProgramMacroInstruction, LoopUseStaticMacroInstruction } from './loop-program.interface';
+import {
+  LoopDefineMacroInstruction,
+  LoopExecutionStep,
+  LoopInstruction,
+  LoopLoopInstruction,
+  LoopMacro,
+  LoopMacroInstruction,
+  LoopMacroLoopInstruction,
+  LoopProgram,
+  LoopSetValueInstruction,
+  LoopUseProgramMacroInstruction,
+  LoopUseStaticMacroInstruction
+} from './loop-program.interface';
 
 @Component({
   selector: 'app-loop',
@@ -18,6 +30,7 @@ export class LoopComponent implements OnInit {
   vars: { [id: string]: number; } = {};
   tempMacroVarNames: string[] = [];
   history: LoopExecutionStep[] = [];
+  valueInputString = '';
 
   constructor() { }
 
@@ -33,6 +46,12 @@ export class LoopComponent implements OnInit {
     this.runtimeErrors = [];
     this.tempMacroVarNames = [];
     this.history = [];
+    this.valueInputString.split(',').forEach((x, i) => this.setVar('input' + i, Number(x.trim())));
+    if (Object.values(this.vars).some(x => isNaN(x))) {
+      this.parseErrors.push('Invalid input');
+      return;
+    }
+    this.setVar('output', 0);
     this.runSubRoutine(this.program);
     this.history = [... this.history, {instruction: null, vars: {... this.vars}, scope: 'main'}];
   }

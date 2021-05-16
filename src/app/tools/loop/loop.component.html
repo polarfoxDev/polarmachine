@@ -8,7 +8,8 @@
     You can also use empty lines for better optical separation of blocks.<br/>
     Variable and macro names have to start with a-z/A-Z, but can contain numbers as well.<br/>
     Reserved syntactic words are disallowed as variable name.<br/>
-    The default value of each variable is set to zero.
+    Inputs will be in variables <var>input0</var>, <var>input1</var>, ...<br/>
+    For output, use the variable <var>output</var>
   </div>
   <h3>Basic instructions</h3>
   <div class="syntaxblock">
@@ -72,11 +73,16 @@ END
 </div>
 <h2>Code Editor</h2>
 <mat-form-field appearance="fill">
+  <mat-label>loop code</mat-label>
   <textarea [(ngModel)]="codeInput" (change)="parse()" matInput></textarea>
 </mat-form-field>
 <br/>
+<mat-form-field appearance="fill">
+  <mat-label>program inputs (comma separated natural numbers)</mat-label>
+  <input [(ngModel)]="valueInputString" matInput/>
+</mat-form-field><br/>
 <span *ngIf="parseErrors.length > 0">{{parseErrors[0]}}</span><br/>
-<button mat-flat-button (click)="prepareAndRun()">run</button>
+<button mat-flat-button color="primary" (click)="prepareAndRun()">run</button>
 
 <br/><br/>
 <h2>Execution history</h2>
@@ -86,6 +92,7 @@ END
 </div>
 
 <div class="history" *ngIf="runtimeErrors.length === 0">
+  Output: {{vars['output']}}
   <table mat-table [dataSource]="history" class="mat-elevation-z8 mb-s">
     <ng-container matColumnDef="stepIndex">
       <th mat-header-cell *matHeaderCellDef> step # </th>
