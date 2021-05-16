@@ -2,13 +2,72 @@
 <h2>Syntax Hints <mat-slide-toggle [(ngModel)]="showingSyntax"></mat-slide-toggle></h2>
 <div class="syntaxbox" *ngIf="showingSyntax">
   <h3>General hints</h3>
-  <p>Line breaks and semicolons can be used equivalently.</p>
+  <div class="syntaxblock">
+    Line breaks and semicolons can be used equivalently.<br/>
+    Whitespace before or after instructions can be used for better overview and will be trimmed while parsing.<br/>
+    You can also use empty lines for better optical separation of blocks.<br/>
+    Variable and macro names have to start with a-z/A-Z, but can contain numbers as well.<br/>
+    Reserved syntactic words are disallowed as variable name.<br/>
+    The default value of each variable is set to zero.
+  </div>
   <h3>Basic instructions</h3>
-  <p>
-    <b>value assignments:</b><br/>
-    'variableNameA := variableNameB + naturalNumber' and <br/>
-    'variableNameA := variableNameB - naturalNumber'
-  </p>
+  <div class="syntaxblock">
+    <h4>value assignments:</h4>
+    <pre>
+// Syntax: <var>variableNameA</var> := <var>variableNameB</var> +/- <var>constantNaturalNumber</var>
+// Examples:
+x := x - 3
+iterations := iterations + 1
+    </pre>
+    <h4>loops:</h4>
+    <pre>
+// LOOP <var>variableName</var> DO ; <var>innerInstructions</var> ; END
+// Example 1:
+LOOP x DO
+  y := z - 8
+END
+// Example 2:
+LOOP outer DO
+  example := example + 8
+  LOOP inner DO
+    example := example - 1
+  END
+END
+    </pre>
+  </div>
+  <h3>Macros</h3>
+  <div class="syntaxblock">
+    For easier use of logic you need often (like IF, SUM, MULT, ...) you can define macros with a specific syntax. It is currently not allowed to call a macro inside of another macro.
+    <h4>macro definitions:</h4>
+    <pre>
+// Syntax: DEFINE MACRO <var>macroName</var> ; <var>innerInstructions</var> ; END
+// Example 1:
+DEFINE MACRO setXtoC
+  %0 := %1 + #0           // access parametrized constants with #N where N is the constant's index (see usage)
+END
+// Example 2:
+DEFINE MACRO ifNotZero
+  LOOP %0 DO              // access parametrized vars with %N where N is the bind index (see usage)
+    %1 := %100 + 1        // if N>|parametrizedVars|, %N := 0 → creates new var for macro scope only
+  END
+  LOOP %1 DO
+    PROGRAM               // execute callback part of macro usage
+  END
+END
+    </pre>
+    <h4>macro usage:</h4>
+    <pre>
+// Syntax (no callback): USE MACRO <var>macroName</var> &<var>var1</var> &<var>var2</var> <var>...</var> <var>constNat1</var> <var>constNat2</var> <var>...</var>
+// Example:
+USE MACRO setXtoC seven 7
+// Syntax (with callback): USE MACRO <var>macroName</var> &<var>var1</var> &<var>var2</var> <var>...</var> <var>constNat1</var> <var>constNat2</var> <var>...</var> DO ; <var>innerInstructions</var> ; END
+// Example
+USE MACRO ifNotZero &x DO // always use & before variables, do not for constant numbers
+  z := z + 1
+END
+    </pre>
+  </div>
+
   <br/>
 </div>
 <h2>Code Editor</h2>
