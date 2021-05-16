@@ -4,4 +4,6 @@
   <mat-form-field appearance="fill">
     <textarea [(ngModel)]="codeInput" (change)="parse()" matInput></textarea>
   </mat-form-field>
-</ng-container>
+</ng-container><br/>
+<span *ngIf="parseErrors.length > 0">{{parseErrors[0]}}</span><br/>
+<button mat-flat-button (click)="prepareAndRun()">run</button>
