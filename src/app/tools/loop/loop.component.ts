@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { LoopDefineMacroInstruction, LoopInstruction, LoopLoopInstruction, LoopMacro, LoopMacroInstruction, LoopMacroLoopInstruction, LoopMacroRunProgramInstruction, LoopProgram, LoopSetValueInstruction, LoopUseProgramMacroInstruction, LoopUseStaticMacroInstruction } from './loop-program.interface';
+import { LoopDefineMacroInstruction, LoopExecutionStep, LoopInstruction, LoopLoopInstruction, LoopMacro, LoopMacroInstruction, LoopMacroLoopInstruction, LoopProgram, LoopSetValueInstruction, LoopUseProgramMacroInstruction, LoopUseStaticMacroInstruction } from './loop-program.interface';
 
 @Component({
   selector: 'app-loop',
@@ -8,7 +8,6 @@ import { LoopDefineMacroInstruction, LoopInstruction, LoopLoopInstruction, LoopM
 })
 export class LoopComponent implements OnInit {
 
-  designer = true;
   codeInput = '';
   program: LoopProgram = [];
   macros: LoopDefineMacroInstruction[] = [];
@@ -17,6 +16,7 @@ export class LoopComponent implements OnInit {
   runtimeErrors: string[] = [];
   vars: { [id: string]: number; } = {};
   tempMacroVarNames: string[] = [];
+  history: LoopExecutionStep[] = [];
 
   constructor() { }
 
@@ -31,13 +31,14 @@ export class LoopComponent implements OnInit {
     this.macros = [];
     this.runtimeErrors = [];
     this.tempMacroVarNames = [];
+    this.history = [];
     this.runSubRoutine(this.program);
-    console.log(this.vars);
-    console.log(this.runtimeErrors);
+    this.history = [... this.history, {instruction: null, vars: {... this.vars}, scope: 'main'}];
   }
 
   runSubRoutine(program: LoopProgram): void {
     program.forEach(instruction => {
+      this.history.push({instruction, vars: {... this.vars}, scope: 'main'});
       switch (instruction.discriminator) {
         case 'loopSetValueInstruction':
           this.setVar(instruction.setVariable, this.getVar(instruction.useVariable) + Number(instruction.useConstant));
@@ -108,6 +109,7 @@ export class LoopComponent implements OnInit {
 
   runMacro(macroId: number, macro: LoopMacro, bindVars: string[], constants: number[], callback?: LoopProgram): void {
     macro.forEach(instruction => {
+      this.history.push({instruction, vars: {... this.vars}, scope: '@macro(' + macroId + ')'});
       switch (instruction.discriminator) {
         case 'loopSetValueInstruction':
           this.setVar(
@@ -127,7 +129,6 @@ export class LoopComponent implements OnInit {
             this.runtimeErrors.push('no subroutine provided for a macro using the PROGRAM instruction');
             break;
           }
-          console.log('run subroutine from macro');
           this.runSubRoutine(callback);
           break;
         default:
@@ -153,7 +154,6 @@ export class LoopComponent implements OnInit {
     this.parseErrors = [];
     this.remainingLines = this.codeInput.split(/[\n;]/).filter(line => line.length > 0);
     this.program = this.parseSubRoutine(true);
-    console.log(this.program);
   }
 
   parseSubRoutine(isBaseLevel = false): LoopProgram {

@@ -1,4 +1,4 @@
-<ng-container *ngIf="designer">
+<ng-container>
   <h1>LOOP Interpreter (Setup)</h1>
   <h2>Code Editor</h2>
   <mat-form-field appearance="fill">
@@ -7,3 +7,88 @@
 </ng-container><br/>
 <span *ngIf="parseErrors.length > 0">{{parseErrors[0]}}</span><br/>
 <button mat-flat-button (click)="prepareAndRun()">run</button>
+
+<br/><br/>
+<h2>Execution history</h2>
+
+<div *ngIf="runtimeErrors.length > 0">
+  {{runtimeErrors[0]}}
+</div>
+
+<div class="history" *ngIf="runtimeErrors.length === 0">
+  <table mat-table [dataSource]="history" class="mat-elevation-z8 mb-s">
+    <ng-container matColumnDef="stepIndex">
+      <th mat-header-cell *matHeaderCellDef> step # </th>
+      <td mat-cell *matCellDef="let element; let i = index">
+        <ng-container *ngIf="element.instruction">{{i+1}}</ng-container>
+        <ng-container *ngIf="!element.instruction">stops</ng-container>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="scope">
+      <th mat-header-cell *matHeaderCellDef> scope </th>
+      <td mat-cell *matCellDef="let element">
+        <ng-container *ngIf="element.instruction"> {{element.scope}} </ng-container>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="instructionDetails">
+      <th mat-header-cell *matHeaderCellDef> instruction Details </th>
+      <td mat-cell *matCellDef="let element">
+        <ng-container *ngIf="element.instruction?.discriminator === 'loopSetValueInstruction'">
+          {{element.instruction.setVariable}} ← {{element.instruction.useVariable}}{{element.instruction.useConstant}}
+        </ng-container>
+        <ng-container *ngIf="element.instruction?.discriminator === 'loopLoopInstruction'">
+          loop {{element.instruction.loopVariable}} times
+        </ng-container>
+        <ng-container *ngIf="element.instruction?.discriminator === 'loopMacroLoopInstruction'">
+          loop {{element.instruction.loopVariable}} times
+        </ng-container>
+        <ng-container *ngIf="element.instruction?.discriminator === 'loopMacroRunProgramInstruction'">
+          run callback program
+        </ng-container>
+        <ng-container *ngIf="element.instruction?.discriminator === 'loopDefineMacroInstruction'">
+          define macro "{{element.instruction.name}}"
+        </ng-container>
+        <ng-container *ngIf="element.instruction?.discriminator === 'loopUseStaticMacroInstruction'">
+          use macro "{{element.instruction.name}}"
+          <ng-container *ngIf="element.instruction.bindVars.length > 0">
+            with vars <ng-container *ngFor="let variable of element.instruction.bindVars; let i=index">
+              <ng-container *ngIf="i !== 0">,</ng-container>
+              %{{i}}:={{variable}}
+            </ng-container>
+          </ng-container>
+          <ng-container *ngIf="element.instruction.constants.length > 0">
+            with constants <ng-container *ngFor="let constant of element.instruction.constants; let i=index">
+              <ng-container *ngIf="i !== 0">,</ng-container>
+              #{{i}}:={{constant}}
+            </ng-container>
+          </ng-container>
+        </ng-container>
+        <ng-container *ngIf="element.instruction?.discriminator === 'loopUseProgramMacroInstruction'">
+          use macro "{{element.instruction.name}}"
+          <ng-container *ngIf="element.instruction.bindVars.length > 0">
+            with vars <ng-container *ngFor="let variable of element.instruction.bindVars; let i=index">
+              <ng-container *ngIf="i !== 0">,</ng-container>
+              %{{i}}:={{variable}}
+            </ng-container>
+          </ng-container>
+          <ng-container *ngIf="element.instruction.constants.length > 0">
+            with constants <ng-container *ngFor="let constant of element.instruction.constants; let i=index">
+              <ng-container *ngIf="i !== 0">,</ng-container>
+              #{{i}}:={{constant}}
+            </ng-container>
+          </ng-container>
+          and a callback program
+        </ng-container>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="vars">
+      <th mat-header-cell *matHeaderCellDef> variables </th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.vars | json }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="['stepIndex', 'scope', 'instructionDetails', 'vars']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['stepIndex', 'scope', 'instructionDetails', 'vars'];"></tr>
+  </table>
+</div>
