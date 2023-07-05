@@ -1,5 +1,5 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TMTransition } from '../turing-machine-config.interface';
 import { TuringMachineService } from '../turing-machine.service';
 
@@ -8,7 +8,7 @@ import { TuringMachineService } from '../turing-machine.service';
   templateUrl: './add-transition-multi-dialog.component.html',
   styleUrls: ['./add-transition-multi-dialog.component.scss']
 })
-export class AddTransitionMultiDialogComponent implements OnInit {
+export class AddTransitionMultiDialogComponent {
 
   valid = false;
 
@@ -16,7 +16,7 @@ export class AddTransitionMultiDialogComponent implements OnInit {
   transText = '';
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: {bandCount: number},
+    @Inject(MAT_DIALOG_DATA) public data: { bandCount: number },
     private dialogRef: MatDialogRef<AddTransitionMultiDialogComponent>,
     public tmService: TuringMachineService
   ) { }
@@ -71,8 +71,8 @@ export class AddTransitionMultiDialogComponent implements OnInit {
     const move = parts[4].split(',');
     if (move.length === this.data.bandCount && move.every(x => x.trim().length === 1)) {
       trans.move = move.map(x => x.trim()).map(x => x.length === 1 ? x : null).map(x => {
-        return x.toLowerCase() === 'l' ? 'left' : (
-          x.toLowerCase() === 'r' ? 'right' : 'not'
+        return x?.toLowerCase() === 'l' ? 'left' : (
+          x?.toLowerCase() === 'r' ? 'right' : 'not'
         );
       });
     }

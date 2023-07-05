@@ -51,7 +51,7 @@ export interface WhileUseProgramMacroInstruction {
 export type WhileMacro = WhileMacroInstruction[];
 
 export interface WhileExecutionStep {
-  instruction: WhileInstruction | WhileMacroInstruction;
+  instruction: WhileInstruction | WhileMacroInstruction | null;
   vars: { [id: string]: number; };
   scope: string;
 }

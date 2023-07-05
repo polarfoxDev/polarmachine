@@ -1,5 +1,5 @@
 export const environment = {
-    production: true,
-    version: 'v' + require('../../package.json').version,
+    production: false,
+    version: 'v' + require('../../package.json').version + '-dev',
     issuesLink: 'https://github.com/polarfoxDev/polarmachine/issues',
 };

@@ -1,80 +1,95 @@
 .config-form,
 .flex-list {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
+
 .float-right {
-	float: right;
+    float: right;
 }
+
 table,
 mat-form-field,
 mat-card {
-	width: 800px;
+    width: 800px;
 }
+
 .inline-form-field {
-	width: 100px;
-	margin-left: 8px;
-	margin-right: 8px;
+    width: 100px;
+    margin-left: 8px;
+    margin-right: 8px;
 }
+
 h2,
 h3 {
-	margin-top: 16px;
+    margin-top: 16px;
 }
+
 .bandstates {
-	margin-top: 16px;
-	.band {
-		margin-bottom: 20px;
-		.cell {
-			border: 1px solid #808080;
-			width: 40px;
-			float: left;
-			margin-right: 10px;
-			text-align: center;
-			padding: 10px;
-			overflow: hidden;
-			&.invisible {
-				opacity: 0;
-			}
-			&.pulsing {
-				animation-iteration-count: 1;
-				animation: pulse 0.5s;
-				animation-direction: alternate;
-			}
-		}
-		.below {
-			clear: both;
-			.head {
-				position: relative;
-				left: calc(72px * 4 - 4px + (62px / 2));
-				border: solid #fff;
-				border-width: 0 3px 3px 0;
-				display: inline-block;
-				padding: 3px;
-				transform: rotate(-135deg);
-				-webkit-transform: rotate(-135deg);
-			}
-		}
-	}
+    margin-top: 16px;
+
+    .band {
+        margin-bottom: 20px;
+
+        .cell {
+            border: 1px solid #808080;
+            width: 40px;
+            float: left;
+            margin-right: 10px;
+            text-align: center;
+            padding: 10px;
+            overflow: hidden;
+
+            &.invisible {
+                opacity: 0;
+            }
+
+            &.pulsing {
+                animation-iteration-count: 1;
+                animation: pulse 0.5s;
+                animation-direction: alternate;
+            }
+        }
+
+        .below {
+            clear: both;
+
+            .head {
+                position: relative;
+                left: calc(72px * 4 - 4px + (62px / 2));
+                border: solid #fff;
+                border-width: 0 3px 3px 0;
+                display: inline-block;
+                padding: 3px;
+                transform: rotate(-135deg);
+                -webkit-transform: rotate(-135deg);
+            }
+        }
+    }
 }
+
 .bold {
-	font-weight: bold;
-	color: #b0bec5;
+    font-weight: bold;
+    color: #b0bec5;
 }
+
 .history {
-	table {
-		width: 100%;
-	}
+    table {
+        width: 100%;
+    }
 }
 
 @keyframes pulse {
-  0% {
-    color: white;
-  }
-  50% {
-    color: #c2185b;
-  }
-  100% {
-    color: white;
-  }
+    0% {
+        color: white;
+    }
+
+    50% {
+        color: #c2185b;
+    }
+
+    100% {
+        color: white;
+    }
 }

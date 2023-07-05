@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {
+  LoopProgram,
   LoopDefineMacroInstruction,
   LoopExecutionStep,
-  LoopInstruction,
-  LoopLoopInstruction,
   LoopMacro,
+  LoopInstruction,
   LoopMacroInstruction,
-  LoopMacroLoopInstruction,
-  LoopProgram,
   LoopSetValueInstruction,
-  LoopUseProgramMacroInstruction,
-  LoopUseStaticMacroInstruction
+  LoopLoopInstruction,
+  LoopMacroLoopInstruction,
+  LoopUseStaticMacroInstruction,
+  LoopUseProgramMacroInstruction
 } from './loop-program.interface';
 
 @Component({
@@ -18,13 +18,13 @@ import {
   templateUrl: './loop.component.html',
   styleUrls: ['./loop.component.scss']
 })
-export class LoopComponent implements OnInit {
+export class LoopComponent {
 
   showingSyntax = true;
   codeInput = '';
   program: LoopProgram = [];
   macros: LoopDefineMacroInstruction[] = [];
-  remainingLines: string[];
+  remainingLines: string[] = [];
   parseErrors: string[] = [];
   runtimeErrors: string[] = [];
   vars: { [id: string]: number; } = {};
@@ -178,7 +178,7 @@ export class LoopComponent implements OnInit {
 
   parseSubRoutine(isBaseLevel = false): LoopProgram {
     const subRoutine: LoopProgram = [];
-    let nextInstruction: LoopInstruction;
+    let nextInstruction: LoopInstruction | null;
     do {
       nextInstruction = this.parseInstruction(isBaseLevel);
       if (nextInstruction) {
@@ -190,7 +190,7 @@ export class LoopComponent implements OnInit {
 
   parseMacroRoutine(): LoopMacro {
     const subRoutine: LoopMacro = [];
-    let nextInstruction: LoopMacroInstruction;
+    let nextInstruction: LoopMacroInstruction | null;
     do {
       nextInstruction = this.parseMacroInstruction();
       if (nextInstruction) {
@@ -223,6 +223,7 @@ export class LoopComponent implements OnInit {
       return null;
     }
     this.parseErrors.push('invalid instruction inside macro: ' + nextLine);
+    return null;
   }
 
   parseInstruction(eofAllowed = false): LoopInstruction | null {
@@ -260,6 +261,7 @@ export class LoopComponent implements OnInit {
       return null;
     }
     this.parseErrors.push('invalid instruction: ' + nextLine);
+    return null;
   }
 
   parseSetValue(instructionLine: string): LoopSetValueInstruction {
@@ -344,5 +346,4 @@ export class LoopComponent implements OnInit {
       discriminator: 'loopUseProgramMacroInstruction'
     };
   }
-
 }

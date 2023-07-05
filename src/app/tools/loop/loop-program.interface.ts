@@ -51,7 +51,7 @@ export interface LoopUseProgramMacroInstruction {
 export type LoopMacro = LoopMacroInstruction[];
 
 export interface LoopExecutionStep {
-  instruction: LoopInstruction | LoopMacroInstruction;
+  instruction: LoopInstruction | LoopMacroInstruction | null;
   vars: { [id: string]: number; };
   scope: string;
 }

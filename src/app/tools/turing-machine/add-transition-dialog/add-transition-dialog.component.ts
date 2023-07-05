@@ -1,5 +1,5 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TMTransition } from '../turing-machine-config.interface';
 import { TuringMachineService } from '../turing-machine.service';
 
@@ -8,7 +8,7 @@ import { TuringMachineService } from '../turing-machine.service';
   templateUrl: './add-transition-dialog.component.html',
   styleUrls: ['./add-transition-dialog.component.scss']
 })
-export class AddTransitionDialogComponent implements OnInit {
+export class AddTransitionDialogComponent {
 
   valid = false;
 
@@ -56,8 +56,8 @@ export class AddTransitionDialogComponent implements OnInit {
     const move = this.transStr.move.split(',');
     if (move.length === this.data.bandCount && move.every(x => x.trim().length === 1)) {
       this.trans.move = move.map(x => x.trim()).map(x => x.length === 1 ? x : null).map(x => {
-        return x.toLowerCase() === 'l' ? 'left' : (
-          x.toLowerCase() === 'r' ? 'right' : 'not'
+        return x?.toLowerCase() === 'l' ? 'left' : (
+          x?.toLowerCase() === 'r' ? 'right' : 'not'
         );
       });
     }
@@ -81,5 +81,4 @@ export class AddTransitionDialogComponent implements OnInit {
   submit(): void {
     this.dialogRef.close(this.trans);
   }
-
 }
