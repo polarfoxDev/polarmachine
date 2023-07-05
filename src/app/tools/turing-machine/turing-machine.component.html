@@ -1,173 +1,192 @@
 <ng-container *ngIf="designer">
-  <h1>Turing Machine (Setup)</h1>
-  <h2>Machine Configuration</h2>
-  <div class="config-form">
-    <h3>General</h3>
-    <span class="mb-s"><button mat-flat-button color="accent" (click)="deriveAlphabetFromTransitions()">generate from transitions</button></span>
-    <mat-form-field appearance="fill">
-      <mat-label>alphabet (each character is one alphabet symbol)</mat-label>
-      <input [(ngModel)]="tm.alphabet" matInput>
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>final states (comma separated list of integers)</mat-label>
-      <input [(ngModel)]="finalStatesCSL" matInput>
-    </mat-form-field>
-    <h3>Bands</h3>
-    <ng-container *ngFor="let band of tm.bands; let i=index">
-      <span class="mb-s"><button mat-flat-button color="accent" (click)="addBand(i)">add band here</button></span>
-      <mat-card class="mb-s">
-        <mat-card-content>
-          <div>
-            <div>band {{i}}</div>
-            <button class="float-right" mat-icon-button [disabled]="tm.bands.length === 1" (click)="removeBand(i)"><mat-icon>delete</mat-icon></button>
-          </div>
-          <div class="flex-list">
-            <mat-checkbox [(ngModel)]="band.isOutputBand" class="example-margin">use as output band</mat-checkbox>
-            <mat-checkbox [(ngModel)]="band.nonNegative" class="example-margin">limit band to the left (only infinite to the right)</mat-checkbox>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </ng-container>
-    <span class="mb-s"><button mat-flat-button color="accent" (click)="addBand(tm.bands.length)">add band here</button></span>
-    <h3>Transitions</h3>
-    <table mat-table [dataSource]="tm.transitions" class="mat-elevation-z8 mb-s">
-      <ng-container matColumnDef="inState">
-        <th mat-header-cell *matHeaderCellDef> in state </th>
-        <td mat-cell *matCellDef="let element"> {{element.inState}} </td>
-      </ng-container>
-      <ng-container matColumnDef="read">
-        <th mat-header-cell *matHeaderCellDef> read </th>
-        <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.read)}} </td>
-      </ng-container>
-      <ng-container matColumnDef="write">
-        <th mat-header-cell *matHeaderCellDef> write </th>
-        <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.write)}} </td>
-      </ng-container>
-      <ng-container matColumnDef="toState">
-        <th mat-header-cell *matHeaderCellDef> go to state </th>
-        <td mat-cell *matCellDef="let element"> {{element.toState}} </td>
-      </ng-container>
-      <ng-container matColumnDef="move">
-        <th mat-header-cell *matHeaderCellDef> move head </th>
-        <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.move)}} </td>
-      </ng-container>
-      <ng-container matColumnDef="arrow">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let element">→</td>
-      </ng-container>
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let element">
-          <button class="float-right" mat-icon-button (click)="removeTransition(element)"><mat-icon>delete</mat-icon></button>
-        </td>
-      </ng-container>
+    <h1>Turing Machine (Setup)</h1>
+    <h2>Machine Configuration</h2>
+    <div class="config-form">
+        <h3>General</h3>
+        <span class="mb-s"><button mat-flat-button color="accent" (click)="deriveAlphabetFromTransitions()">generate
+                from transitions</button></span>
+        <mat-form-field appearance="fill">
+            <mat-label>alphabet (each character is one alphabet symbol)</mat-label>
+            <input [(ngModel)]="tm.alphabet" matInput>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+            <mat-label>final states (comma separated list of integers)</mat-label>
+            <input [(ngModel)]="finalStatesCSL" matInput>
+        </mat-form-field>
+        <h3>Bands</h3>
+        <ng-container *ngFor="let band of tm.bands; let i=index">
+            <span class="mb-s"><button mat-flat-button color="accent" (click)="addBand(i)">add band here</button></span>
+            <mat-card class="mb-s">
+                <mat-card-content>
+                    <div>
+                        <div>band {{i}}</div>
+                        <button class="float-right" mat-icon-button [disabled]="tm.bands.length === 1"
+                            (click)="removeBand(i)"><mat-icon>delete</mat-icon></button>
+                    </div>
+                    <div class="flex-list">
+                        <mat-checkbox [(ngModel)]="band.isOutputBand" class="example-margin">use as output
+                            band</mat-checkbox>
+                        <mat-checkbox [(ngModel)]="band.nonNegative" class="example-margin">limit band to the left (only
+                            infinite to the right)</mat-checkbox>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </ng-container>
+        <span class="mb-s"><button mat-flat-button color="accent" (click)="addBand(tm.bands.length)">add band
+                here</button></span>
+        <h3>Transitions</h3>
+        <table mat-table [dataSource]="tm.transitions" class="mat-elevation-z8 mb-s">
+            <ng-container matColumnDef="inState">
+                <th mat-header-cell *matHeaderCellDef> in state </th>
+                <td mat-cell *matCellDef="let element"> {{element.inState}} </td>
+            </ng-container>
+            <ng-container matColumnDef="read">
+                <th mat-header-cell *matHeaderCellDef> read </th>
+                <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.read)}} </td>
+            </ng-container>
+            <ng-container matColumnDef="write">
+                <th mat-header-cell *matHeaderCellDef> write </th>
+                <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.write)}} </td>
+            </ng-container>
+            <ng-container matColumnDef="toState">
+                <th mat-header-cell *matHeaderCellDef> go to state </th>
+                <td mat-cell *matCellDef="let element"> {{element.toState}} </td>
+            </ng-container>
+            <ng-container matColumnDef="move">
+                <th mat-header-cell *matHeaderCellDef> move head </th>
+                <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.move)}} </td>
+            </ng-container>
+            <ng-container matColumnDef="arrow">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">→</td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <button class="float-right" mat-icon-button
+                        (click)="removeTransition(element)"><mat-icon>delete</mat-icon></button>
+                </td>
+            </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="['inState', 'read', 'arrow', 'write', 'toState', 'move', 'actions']"></tr>
-      <tr mat-row *matRowDef="let row; columns: ['inState', 'read', 'arrow', 'write', 'toState', 'move', 'actions'];"></tr>
-    </table>
-    <div class="mb-s">
-      <span class="mr-s"><button mat-flat-button color="accent" (click)="addTransition()">add transition</button></span>
-      <span><button mat-flat-button (click)="addTransitions()">add multiple transitions</button></span>
+            <tr mat-header-row *matHeaderRowDef="['inState', 'read', 'arrow', 'write', 'toState', 'move', 'actions']">
+            </tr>
+            <tr mat-row
+                *matRowDef="let row; columns: ['inState', 'read', 'arrow', 'write', 'toState', 'move', 'actions'];">
+            </tr>
+        </table>
+        <div class="mb-s">
+            <span class="mr-s"><button mat-flat-button color="accent" (click)="addTransition()">add
+                    transition</button></span>
+            <span><button mat-flat-button (click)="addTransitions()">add multiple transitions</button></span>
+        </div>
     </div>
-  </div>
-  <h2>Run Configuration</h2>
-  <div class="config-form">
-    <div>
-      delay steps by
-      <mat-form-field class="inline-form-field">
-        <input [(ngModel)]="runConfig.delay" matInput>
-      </mat-form-field>
-      ms
+    <h2>Run Configuration</h2>
+    <div class="config-form">
+        <div>
+            delay steps by
+            <mat-form-field class="inline-form-field">
+                <input [(ngModel)]="runConfig.delay" matInput>
+            </mat-form-field>
+            ms
+        </div>
+        <div>
+            maximum # steps: <mat-form-field class="inline-form-field">
+                <input [(ngModel)]="runConfig.maxSteps" matInput>
+            </mat-form-field>
+        </div>
+        <h3>Band inputs</h3>
+        <mat-form-field *ngFor="let band of tm.bands; let i=index">
+            <mat-label>band {{i}} (use whitespace for blank)</mat-label>
+            <input [(ngModel)]="runConfig.bandInputs[i]" matInput>
+        </mat-form-field>
     </div>
-    <div>
-      maximum # steps: <mat-form-field class="inline-form-field">
-        <input [(ngModel)]="runConfig.maxSteps" matInput>
-      </mat-form-field>
-    </div>
-    <h3>Band inputs</h3>
-    <mat-form-field *ngFor="let band of tm.bands; let i=index">
-      <mat-label>band {{i}} (use whitespace for blank)</mat-label>
-      <input [(ngModel)]="runConfig.bandInputs[i]" matInput>
-    </mat-form-field>
-  </div>
 
-  <span class="mt"><button mat-flat-button color="primary" (click)="runMachine()">run machine</button></span>
-  <span>{{validationResult}}</span>
+    <span class="mt"><button mat-flat-button color="primary" (click)="runMachine()">run machine</button></span>
+    <span>{{validationResult}}</span>
 </ng-container>
 <ng-container *ngIf="!designer">
 
-  <h1>Turing Machine ({{running ? 'Running' : 'Stopped'}})</h1>
-  <h2>Bands</h2>
+    <h1>Turing Machine ({{running ? 'Running' : 'Stopped'}})</h1>
+    <h2>Bands</h2>
 
-  <span class="mt mr-s"><button mat-flat-button color="primary" [disabled]="!running" (click)="stopMachine()">cancel execution</button></span>
-  <span class="mt"><button mat-flat-button color="primary" [disabled]="running" (click)="designer = true">back to designer</button></span>
-  <div class="bandstates">
-    <div class="band" *ngFor="let band of tm.bands; let i = index;">
-      <div class="label">band {{i}}:</div>
-      <div>
-        <ng-container *ngFor="let pos of [band.position - 4, band.position - 3, band.position - 2, band.position - 1, band.position, band.position + 1, band.position + 2, band.position + 3, band.position + 4]; let i = index">
-          <div *ngIf="!(band.nonNegative && pos < 0); else invisible" [class.pulsing]="i === 4 && band.recentValueChange" [@inOutAnimation] class="cell" id="band{{i}}pos{{pos}}"> {{ getSymbol(band, pos) }} </div>
-          <ng-template #invisible><div class="cell invisible" [@inOutAnimationInvisible]>&nbsp;</div></ng-template>
-        </ng-container>
-      </div>
-      <div class="below">
-        <div class="head"></div>
-      </div>
+    <span class="mt mr-s"><button mat-flat-button color="primary" [disabled]="!running" (click)="stopMachine()">cancel
+            execution</button></span>
+    <span class="mt"><button mat-flat-button color="primary" [disabled]="running" (click)="designer = true">back to
+            designer</button></span>
+    <div class="bandstates">
+        <div class="band" *ngFor="let band of tm.bands; let i = index;">
+            <div class="label">band {{i}}:</div>
+            <div>
+                <ng-container
+                    *ngFor="let pos of [band.position - 4, band.position - 3, band.position - 2, band.position - 1, band.position, band.position + 1, band.position + 2, band.position + 3, band.position + 4]; let i = index">
+                    <div *ngIf="!(band.nonNegative && pos < 0); else invisible"
+                        [class.pulsing]="i === 4 && band.recentValueChange" [@inOutAnimation] class="cell"
+                        id="band{{i}}pos{{pos}}"> {{ getSymbol(band, pos) }} </div>
+                    <ng-template #invisible>
+                        <div class="cell invisible" [@inOutAnimationInvisible]>&nbsp;</div>
+                    </ng-template>
+                </ng-container>
+            </div>
+            <div class="below">
+                <div class="head"></div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <h2>Step history</h2>
+    <h2>Step history</h2>
 
-  <div class="history">
-    <table mat-table [dataSource]="history" class="mat-elevation-z8 mb-s">
-      <ng-container matColumnDef="stepIndex">
-        <th mat-header-cell *matHeaderCellDef> step # </th>
-        <td mat-cell *matCellDef="let element; let i = index">
-          <ng-container *ngIf="!element.trans">stops
-            <ng-container *ngIf="forcedStop">(max. steps)</ng-container>
-            <ng-container *ngIf="noTransStop">(no transition)</ng-container>
-            <ng-container *ngIf="!forcedStop && !noTransStop">(final state)</ng-container>
-          </ng-container>
-          <ng-container *ngIf="element.trans">{{i+1}}</ng-container>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="inState">
-        <th mat-header-cell *matHeaderCellDef> in state </th>
-        <td mat-cell *matCellDef="let element"> {{element.state}} </td>
-      </ng-container>
-      <ng-container matColumnDef="usingTransition">
-        <th mat-header-cell *matHeaderCellDef> transition </th>
-        <td mat-cell *matCellDef="let element">
-          <ng-container *ngIf="element.trans">
-            {{tmService.symbolsToString(element.trans.read)}}
-            →
-            {{tmService.symbolsToString(element.trans.write)}}
-            q:={{element.trans.toState}}
-            move {{tmService.symbolsToString(element.trans.move)}}
-          </ng-container>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="bandContents">
-        <th mat-header-cell *matHeaderCellDef> bandContents </th>
-        <td mat-cell *matCellDef="let element">
-          <div *ngFor="let band of element.bandContents">
-            <span *ngFor="let symbol of band" [class.bold]="symbol.isCurrentPosition">{{symbol.symbol}}</span>
-          </div>
-        </td>
-      </ng-container>
+    <div class="history">
+        <table mat-table [dataSource]="history" class="mat-elevation-z8 mb-s">
+            <ng-container matColumnDef="stepIndex">
+                <th mat-header-cell *matHeaderCellDef> step # </th>
+                <td mat-cell *matCellDef="let element; let i = index">
+                    <ng-container *ngIf="!element.trans">stops
+                        <ng-container *ngIf="forcedStop">(max. steps)</ng-container>
+                        <ng-container *ngIf="noTransStop">(no transition)</ng-container>
+                        <ng-container *ngIf="!forcedStop && !noTransStop">(final state)</ng-container>
+                    </ng-container>
+                    <ng-container *ngIf="element.trans">{{i+1}}</ng-container>
+                </td>
+            </ng-container>
+            <ng-container matColumnDef="inState">
+                <th mat-header-cell *matHeaderCellDef> in state </th>
+                <td mat-cell *matCellDef="let element"> {{element.state}} </td>
+            </ng-container>
+            <ng-container matColumnDef="usingTransition">
+                <th mat-header-cell *matHeaderCellDef> transition </th>
+                <td mat-cell *matCellDef="let element">
+                    <ng-container *ngIf="element.trans">
+                        {{tmService.symbolsToString(element.trans.read)}}
+                        →
+                        {{tmService.symbolsToString(element.trans.write)}}
+                        q:={{element.trans.toState}}
+                        move {{tmService.symbolsToString(element.trans.move)}}
+                    </ng-container>
+                </td>
+            </ng-container>
+            <ng-container matColumnDef="bandContents">
+                <th mat-header-cell *matHeaderCellDef> bandContents </th>
+                <td mat-cell *matCellDef="let element">
+                    <div *ngFor="let band of element.bandContents">
+                        <span *ngFor="let symbol of band"
+                            [class.bold]="symbol.isCurrentPosition">{{symbol.symbol}}</span>
+                    </div>
+                </td>
+            </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="['stepIndex', 'inState', 'bandContents', 'usingTransition']"></tr>
-      <tr mat-row *matRowDef="let row; columns: ['stepIndex', 'inState', 'bandContents', 'usingTransition'];"></tr>
-    </table>
-  </div>
+            <tr mat-header-row *matHeaderRowDef="['stepIndex', 'inState', 'bandContents', 'usingTransition']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['stepIndex', 'inState', 'bandContents', 'usingTransition'];">
+            </tr>
+        </table>
+    </div>
 
-  <ng-container *ngIf="!running">
-    <h2>Machine output</h2>
-    <ng-container *ngIf="output !== null">
-      <ng-container *ngIf="output.length > 0">{{output}}</ng-container>
-      <ng-container *ngIf="output.length === 0">␢</ng-container>
+    <ng-container *ngIf="!running">
+        <h2>Machine output</h2>
+        <ng-container *ngIf="output !== null">
+            <ng-container *ngIf="output.length > 0">{{output}}</ng-container>
+            <ng-container *ngIf="output.length === 0">␢</ng-container>
+        </ng-container>
+        <ng-container *ngIf="output === null">(no output band)</ng-container>
     </ng-container>
-    <ng-container *ngIf="output === null">(no output band)</ng-container>
-  </ng-container>
 
 </ng-container>

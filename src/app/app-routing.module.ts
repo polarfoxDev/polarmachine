@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { OverviewComponent } from './overview/overview.component';
-import { LoopComponent } from './tools/loop/loop.component';
 import { TuringMachineComponent } from './tools/turing-machine/turing-machine.component';
+import { LoopComponent } from './tools/loop/loop.component';
 import { WhileComponent } from './tools/while/while.component';
 
 const routes: Routes = [

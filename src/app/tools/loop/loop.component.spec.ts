@@ -6,14 +6,10 @@ describe('LoopComponent', () => {
   let component: LoopComponent;
   let fixture: ComponentFixture<LoopComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ LoopComponent ]
-    })
-    .compileComponents();
-  });
-
   beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [LoopComponent]
+    });
     fixture = TestBed.createComponent(LoopComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

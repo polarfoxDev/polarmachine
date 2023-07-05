@@ -1,11 +1,13 @@
 .flex-list {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	mat-form-field {
-		width: 600px;
-	}
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    mat-form-field {
+        width: 600px;
+    }
 }
+
 table {
-	width: 600px;
+    width: 600px;
 }

@@ -2,18 +2,14 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AddTransitionMultiDialogComponent } from './add-transition-multi-dialog.component';
 
-describe('AddTransitionDialogComponent', () => {
+describe('AddTransitionMultiDialogComponent', () => {
   let component: AddTransitionMultiDialogComponent;
   let fixture: ComponentFixture<AddTransitionMultiDialogComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ AddTransitionMultiDialogComponent ]
-    })
-    .compileComponents();
-  });
-
   beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [AddTransitionMultiDialogComponent]
+    });
     fixture = TestBed.createComponent(AddTransitionMultiDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {
+  WhileProgram,
   WhileDefineMacroInstruction,
   WhileExecutionStep,
-  WhileInstruction,
-  WhileWhileInstruction,
   WhileMacro,
+  WhileInstruction,
   WhileMacroInstruction,
-  WhileMacroWhileInstruction,
-  WhileProgram,
   WhileSetValueInstruction,
-  WhileUseProgramMacroInstruction,
-  WhileUseStaticMacroInstruction
+  WhileWhileInstruction,
+  WhileMacroWhileInstruction,
+  WhileUseStaticMacroInstruction,
+  WhileUseProgramMacroInstruction
 } from './while-program.interface';
 
 @Component({
@@ -18,13 +18,13 @@ import {
   templateUrl: './while.component.html',
   styleUrls: ['./while.component.scss']
 })
-export class WhileComponent implements OnInit {
+export class WhileComponent {
 
   showingSyntax = true;
   codeInput = '';
   program: WhileProgram = [];
   macros: WhileDefineMacroInstruction[] = [];
-  remainingLines: string[];
+  remainingLines: string[] = [];
   parseErrors: string[] = [];
   runtimeErrors: string[] = [];
   vars: { [id: string]: number; } = {};
@@ -32,7 +32,7 @@ export class WhileComponent implements OnInit {
   history: WhileExecutionStep[] = [];
   valueInputString = '';
   maxStepsInputString = '100';
-  maxSteps: number;
+  maxSteps: number = 0;
   readonly maxStepsLimit = 1000;
   stepCount = 0;
 
@@ -63,7 +63,7 @@ export class WhileComponent implements OnInit {
     }
     this.setVar('output', 0);
     this.runSubRoutine(this.program);
-    this.history = [... this.history, {instruction: null, vars: {... this.vars}, scope: 'main'}];
+    this.history = [... this.history, { instruction: null, vars: { ... this.vars }, scope: 'main' }];
   }
 
   runSubRoutine(program: WhileProgram): void {
@@ -73,7 +73,7 @@ export class WhileComponent implements OnInit {
         this.runtimeErrors.push('Exceeded maximum number of steps');
         return;
       }
-      this.history.push({instruction, vars: {... this.vars}, scope: 'main'});
+      this.history.push({ instruction, vars: { ... this.vars }, scope: 'main' });
       switch (instruction.discriminator) {
         case 'whileSetValueInstruction':
           this.setVar(instruction.setVariable, this.getVar(instruction.useVariable) + Number(instruction.useConstant));
@@ -149,7 +149,7 @@ export class WhileComponent implements OnInit {
         this.runtimeErrors.push('Exceeded maximum number of steps');
         return;
       }
-      this.history.push({instruction, vars: {... this.vars}, scope: '@macro(' + macroId + ')'});
+      this.history.push({ instruction, vars: { ... this.vars }, scope: '@macro(' + macroId + ')' });
       switch (instruction.discriminator) {
         case 'whileSetValueInstruction':
           this.setVar(
@@ -198,7 +198,7 @@ export class WhileComponent implements OnInit {
 
   parseSubRoutine(isBaseLevel = false): WhileProgram {
     const subRoutine: WhileProgram = [];
-    let nextInstruction: WhileInstruction;
+    let nextInstruction: WhileInstruction | null;
     do {
       nextInstruction = this.parseInstruction(isBaseLevel);
       if (nextInstruction) {
@@ -210,7 +210,7 @@ export class WhileComponent implements OnInit {
 
   parseMacroRoutine(): WhileMacro {
     const subRoutine: WhileMacro = [];
-    let nextInstruction: WhileMacroInstruction;
+    let nextInstruction: WhileMacroInstruction | null;
     do {
       nextInstruction = this.parseMacroInstruction();
       if (nextInstruction) {
@@ -243,6 +243,7 @@ export class WhileComponent implements OnInit {
       return null;
     }
     this.parseErrors.push('invalid instruction inside macro: ' + nextLine);
+    return null;
   }
 
   parseInstruction(eofAllowed = false): WhileInstruction | null {
@@ -280,6 +281,7 @@ export class WhileComponent implements OnInit {
       return null;
     }
     this.parseErrors.push('invalid instruction: ' + nextLine);
+    return null;
   }
 
   parseSetValue(instructionLine: string): WhileSetValueInstruction {

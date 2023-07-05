@@ -1,49 +1,51 @@
+<h2 mat-dialog-title>add transition</h2>
+<mat-dialog-content class="mat-typography">
+    <div class="dialog-wrapper">
+        <div class="flex-list">
+            <p>
+                One transition per line. Do not end with an empty line.<br />
+                In each line, use the following syntax:<br />
+                inState # r_0,r_1,...,r_n # w_0,w_1,...,w_n # toState # m_0,m_1,...,m_n<br />
+                with r_k being what is read, w_k what is written and m_k in which direction is being moved on band k
+            </p>
+            <mat-form-field appearance="fill">
+                <mat-label>transitions</mat-label>
+                <textarea [(ngModel)]="transText" (change)="interpretInput()" matInput></textarea>
+            </mat-form-field>
+        </div>
+        <div class="table-wrapper">
+            <table class="mb-s" mat-table [dataSource]="transList" class="mat-elevation-z8 mb-s">
+                <ng-container matColumnDef="inState">
+                    <th mat-header-cell *matHeaderCellDef> in state </th>
+                    <td mat-cell *matCellDef="let element"> {{element.inState}} </td>
+                </ng-container>
+                <ng-container matColumnDef="read">
+                    <th mat-header-cell *matHeaderCellDef> read </th>
+                    <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.read)}} </td>
+                </ng-container>
+                <ng-container matColumnDef="write">
+                    <th mat-header-cell *matHeaderCellDef> write </th>
+                    <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.write)}} </td>
+                </ng-container>
+                <ng-container matColumnDef="toState">
+                    <th mat-header-cell *matHeaderCellDef> go to state </th>
+                    <td mat-cell *matCellDef="let element"> {{element.toState}} </td>
+                </ng-container>
+                <ng-container matColumnDef="move">
+                    <th mat-header-cell *matHeaderCellDef> move head </th>
+                    <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.move)}} </td>
+                </ng-container>
+                <ng-container matColumnDef="arrow">
+                    <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let element">→</td>
+                </ng-container>
 
-<h2>add transition</h2>
-<div class="dialog-wrapper">
-  <div class="flex-list">
-    <p>
-      One transition per line. Do not end with an empty line.<br/>
-      In each line, use the following syntax:<br/>
-      inState # r_0,r_1,...,r_n # w_0,w_1,...,w_n # toState # m_0,m_1,...,m_n<br/>
-      with r_k being what is read, w_k what is written and m_k in which direction is being moved on band k
-    </p>
-    <mat-form-field appearance="fill">
-      <mat-label>transitions</mat-label>
-      <textarea [(ngModel)]="transText" (change)="interpretInput()" matInput></textarea>
-    </mat-form-field>
-  </div>
-  <div class="table-wrapper">
-    <table class="mb-s" mat-table [dataSource]="transList" class="mat-elevation-z8 mb-s">
-      <ng-container matColumnDef="inState">
-        <th mat-header-cell *matHeaderCellDef> in state </th>
-        <td mat-cell *matCellDef="let element"> {{element.inState}} </td>
-      </ng-container>
-      <ng-container matColumnDef="read">
-        <th mat-header-cell *matHeaderCellDef> read </th>
-        <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.read)}} </td>
-      </ng-container>
-      <ng-container matColumnDef="write">
-        <th mat-header-cell *matHeaderCellDef> write </th>
-        <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.write)}} </td>
-      </ng-container>
-      <ng-container matColumnDef="toState">
-        <th mat-header-cell *matHeaderCellDef> go to state </th>
-        <td mat-cell *matCellDef="let element"> {{element.toState}} </td>
-      </ng-container>
-      <ng-container matColumnDef="move">
-        <th mat-header-cell *matHeaderCellDef> move head </th>
-        <td mat-cell *matCellDef="let element"> {{tmService.symbolsToString(element.move)}} </td>
-      </ng-container>
-      <ng-container matColumnDef="arrow">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let element">→</td>
-      </ng-container>
+                <tr mat-header-row *matHeaderRowDef="['inState', 'read', 'arrow', 'write', 'toState', 'move']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['inState', 'read', 'arrow', 'write', 'toState', 'move'];">
+                </tr>
+            </table>
+        </div>
+    </div>
 
-      <tr mat-header-row *matHeaderRowDef="['inState', 'read', 'arrow', 'write', 'toState', 'move']"></tr>
-      <tr mat-row *matRowDef="let row; columns: ['inState', 'read', 'arrow', 'write', 'toState', 'move'];"></tr>
-    </table>
-  </div>
-</div>
-
-<button mat-flat-button [disabled]="!valid" (click)="submit()" color="primary">save</button>
+    <button mat-flat-button [disabled]="!valid" (click)="submit()" color="primary">save</button>
+</mat-dialog-content>

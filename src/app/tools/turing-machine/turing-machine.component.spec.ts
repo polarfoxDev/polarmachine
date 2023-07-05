@@ -6,14 +6,10 @@ describe('TuringMachineComponent', () => {
   let component: TuringMachineComponent;
   let fixture: ComponentFixture<TuringMachineComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ TuringMachineComponent ]
-    })
-    .compileComponents();
-  });
-
   beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [TuringMachineComponent]
+    });
     fixture = TestBed.createComponent(TuringMachineComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

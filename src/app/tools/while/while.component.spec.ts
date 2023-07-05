@@ -6,14 +6,10 @@ describe('WhileComponent', () => {
   let component: WhileComponent;
   let fixture: ComponentFixture<WhileComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ WhileComponent ]
-    })
-    .compileComponents();
-  });
-
   beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [WhileComponent]
+    });
     fixture = TestBed.createComponent(WhileComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

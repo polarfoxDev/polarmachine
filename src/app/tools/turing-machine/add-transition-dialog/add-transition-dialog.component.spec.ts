@@ -6,14 +6,10 @@ describe('AddTransitionDialogComponent', () => {
   let component: AddTransitionDialogComponent;
   let fixture: ComponentFixture<AddTransitionDialogComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ AddTransitionDialogComponent ]
-    })
-    .compileComponents();
-  });
-
   beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [AddTransitionDialogComponent]
+    });
     fixture = TestBed.createComponent(AddTransitionDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
