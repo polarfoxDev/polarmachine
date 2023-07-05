@@ -144,7 +144,7 @@ export class TuringMachineComponent {
   }
 
   prepare(): void {
-    this.tm.finalStates = this.finalStatesCSL.split(',').map(x => Number(x));
+    this.tm.finalStates = this.finalStatesCSL.length > 0 ? this.finalStatesCSL.split(',').map(x => Number(x)) : [];
     this.tm.state = 0;
     this.tm.bands.forEach(band => {
       band.position = 0;
