@@ -4,15 +4,15 @@ on:
   push:
     branches: ["main"]
 
-env:
-  IMAGE_NAME: polarfoxdev/polarmachine
-
 jobs:
   publish:
     name: publish image
     runs-on: ubuntu-latest
 
     steps:
+      - name: lowercase github.repository
+        run: |
+          echo "IMAGE_NAME=`echo ${{github.repository}} | tr '[:upper:]' '[:lower:]'`" >>${GITHUB_ENV}
       - name: Checkout Repository
         uses: actions/checkout@v3
       - name: Set up QEMU
@@ -25,6 +25,7 @@ jobs:
       - name: Build and Publish
         run: |
           docker buildx build \
-            --tag ghcr.io/${{ env.IMAGE_NAME }} \
+            --tag ghcr.io/${{ env.IMAGE_NAME }}:latest \
+            --tag ghcr.io/${{ env.IMAGE_NAME }}:v${{ github.run_number }} \
             --platform linux/amd64,linux/arm64 . \
             --push
