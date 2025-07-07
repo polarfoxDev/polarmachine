@@ -17,26 +17,26 @@
     <div class="syntaxblock">
       <h4>value assignments:</h4>
       <pre>
-        // Syntax: <var>variableNameA</var> := <var>variableNameB</var> +/- <var>constantNaturalNumber</var>
-        // Examples:
-        x := x - 3
-        iterations := iterations + 1
+// Syntax: <var>variableNameA</var> := <var>variableNameB</var> +/- <var>constantNaturalNumber</var>
+// Examples:
+x := x - 3
+iterations := iterations + 1
       </pre>
       <h4>while:</h4>
       <pre>
-        // WHILE <var>variableName</var> DO ; <var>innerInstructions</var> ; END
-        // Example 1:
-        WHILE x DO
-        x := x - 1
-        END
-        // Example 2:
-        WHILE outer DO
-        outer := outer - 1
-        WHILE inner DO
-        inner := inner - 1
-        outer := outer - 10
-        END
-        END
+// WHILE <var>variableName</var> DO ; <var>innerInstructions</var> ; END
+// Example 1:
+WHILE x DO
+x := x - 1
+END
+// Example 2:
+WHILE outer DO
+outer := outer - 1
+WHILE inner DO
+inner := inner - 1
+outer := outer - 10
+END
+END
       </pre>
     </div>
     <h3>Macros</h3>
@@ -44,32 +44,32 @@
       For easier use of logic you need often (like IF, SUM, MULT, ...) you can define macros with a specific syntax. It is currently not allowed to call a macro inside of another macro.
       <h4>macro definitions:</h4>
       <pre>
-        // Syntax: DEFINE MACRO <var>macroName</var> ; <var>innerInstructions</var> ; END
-        // Example 1:
-        DEFINE MACRO setXtoC
-        %0 := %1 + #0           // access parametrized constants with #N where N is the constant's index (see usage)
-        END
-        // Example 2:
-        DEFINE MACRO ifNotZero
-        WHILE %0 DO             // access parametrized vars with %N where N is the bind index (see usage)
-        %1 := %100 + 1        // if N>|parametrizedVars|, %N := 0 → creates new var for macro scope only
-        END
-        WHILE %1 DO
-        %1 := %1 - 1
-        PROGRAM               // execute callback part of macro usage
-        END
-        END
+// Syntax: DEFINE MACRO <var>macroName</var> ; <var>innerInstructions</var> ; END
+// Example 1:
+DEFINE MACRO setXtoC
+%0 := %1 + #0           // access parametrized constants with #N where N is the constant's index (see usage)
+END
+// Example 2:
+DEFINE MACRO ifNotZero
+WHILE %0 DO             // access parametrized vars with %N where N is the bind index (see usage)
+%1 := %100 + 1          // if N>|parametrizedVars|, %N := 0 → creates new var for macro scope only
+END
+WHILE %1 DO
+%1 := %1 - 1
+PROGRAM                 // execute callback part of macro usage
+END
+END
       </pre>
       <h4>macro usage:</h4>
       <pre>
-        // Syntax (no callback): USE MACRO <var>macroName</var> &<var>var1</var> &<var>var2</var> <var>...</var> <var>constNat1</var> <var>constNat2</var> <var>...</var>
-        // Example:
-        USE MACRO setXtoC &seven 7
-        // Syntax (with callback): USE MACRO <var>macroName</var> &<var>var1</var> &<var>var2</var> <var>...</var> <var>constNat1</var> <var>constNat2</var> <var>...</var> DO ; <var>innerInstructions</var> ; END
-        // Example
-        USE MACRO ifNotZero &x DO // always use & before variables, do not for constant numbers
-        z := z + 1
-        END
+// Syntax (no callback): USE MACRO <var>macroName</var> &<var>var1</var> &<var>var2</var> <var>...</var> <var>constNat1</var> <var>constNat2</var> <var>...</var>
+// Example:
+USE MACRO setXtoC &seven 7
+// Syntax (with callback): USE MACRO <var>macroName</var> &<var>var1</var> &<var>var2</var> <var>...</var> <var>constNat1</var> <var>constNat2</var> <var>...</var> DO ; <var>innerInstructions</var> ; END
+// Example
+USE MACRO ifNotZero &x DO // always use & before variables, do not for constant numbers
+z := z + 1
+END
       </pre>
     </div>
     <br/>
