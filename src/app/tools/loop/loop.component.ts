@@ -14,9 +14,10 @@ import {
 } from './loop-program.interface';
 
 @Component({
-  selector: 'app-loop',
-  templateUrl: './loop.component.html',
-  styleUrls: ['./loop.component.scss']
+    selector: 'app-loop',
+    templateUrl: './loop.component.html',
+    styleUrls: ['./loop.component.scss'],
+    standalone: false
 })
 export class LoopComponent {
 

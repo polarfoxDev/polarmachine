@@ -4,9 +4,10 @@ import { TMTransition } from '../turing-machine-config.interface';
 import { TuringMachineService } from '../turing-machine.service';
 
 @Component({
-  selector: 'app-add-transition-dialog',
-  templateUrl: './add-transition-dialog.component.html',
-  styleUrls: ['./add-transition-dialog.component.scss']
+    selector: 'app-add-transition-dialog',
+    templateUrl: './add-transition-dialog.component.html',
+    styleUrls: ['./add-transition-dialog.component.scss'],
+    standalone: false
 })
 export class AddTransitionDialogComponent {
 

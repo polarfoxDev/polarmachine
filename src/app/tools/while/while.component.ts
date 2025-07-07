@@ -14,9 +14,10 @@ import {
 } from './while-program.interface';
 
 @Component({
-  selector: 'app-while',
-  templateUrl: './while.component.html',
-  styleUrls: ['./while.component.scss']
+    selector: 'app-while',
+    templateUrl: './while.component.html',
+    styleUrls: ['./while.component.scss'],
+    standalone: false
 })
 export class WhileComponent {
 

@@ -9,53 +9,32 @@ import { TMStep, TMStepBandSymbol } from './turing-machine-run-step.interface';
 import { TuringMachineService } from './turing-machine.service';
 
 @Component({
-  selector: 'app-turing-machine',
-  templateUrl: './turing-machine.component.html',
-  styleUrls: ['./turing-machine.component.scss'],
-  animations: [
-    trigger(
-      'inOutAnimation',
-      [
-        transition(
-          ':enter',
-          [
-            style({ width: 0, opacity: 0, marginRight: 0 }),
-            animate('0.2s ease-out',
-              style({ width: 40, opacity: 1, marginRight: 10 }))
-          ]
-        ),
-        transition(
-          ':leave',
-          [
-            style({ width: 40, opacity: 1, marginRight: 10 }),
-            animate('0.2s ease-in',
-              style({ width: 0, opacity: 0, marginRight: 0 }))
-          ]
-        )
-      ]
-    ),
-    trigger(
-      'inOutAnimationInvisible',
-      [
-        transition(
-          ':enter',
-          [
-            style({ width: 0, marginRight: 0 }),
-            animate('0.2s ease-out',
-              style({ width: 40, marginRight: 10 }))
-          ]
-        ),
-        transition(
-          ':leave',
-          [
-            style({ width: 40, marginRight: 10 }),
-            animate('0.2s ease-in',
-              style({ width: 0, marginRight: 0 }))
-          ]
-        )
-      ]
-    )
-  ]
+    selector: 'app-turing-machine',
+    templateUrl: './turing-machine.component.html',
+    styleUrls: ['./turing-machine.component.scss'],
+    animations: [
+        trigger('inOutAnimation', [
+            transition(':enter', [
+                style({ width: 0, opacity: 0, marginRight: 0 }),
+                animate('0.2s ease-out', style({ width: 40, opacity: 1, marginRight: 10 }))
+            ]),
+            transition(':leave', [
+                style({ width: 40, opacity: 1, marginRight: 10 }),
+                animate('0.2s ease-in', style({ width: 0, opacity: 0, marginRight: 0 }))
+            ])
+        ]),
+        trigger('inOutAnimationInvisible', [
+            transition(':enter', [
+                style({ width: 0, marginRight: 0 }),
+                animate('0.2s ease-out', style({ width: 40, marginRight: 10 }))
+            ]),
+            transition(':leave', [
+                style({ width: 40, marginRight: 10 }),
+                animate('0.2s ease-in', style({ width: 0, marginRight: 0 }))
+            ])
+        ])
+    ],
+    standalone: false
 })
 export class TuringMachineComponent {
 
