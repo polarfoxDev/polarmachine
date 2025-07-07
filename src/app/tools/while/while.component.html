@@ -63,7 +63,7 @@ END
     <pre>
 // Syntax (no callback): USE MACRO <var>macroName</var> &<var>var1</var> &<var>var2</var> <var>...</var> <var>constNat1</var> <var>constNat2</var> <var>...</var>
 // Example:
-USE MACRO setXtoC seven 7
+USE MACRO setXtoC &seven 7
 // Syntax (with callback): USE MACRO <var>macroName</var> &<var>var1</var> &<var>var2</var> <var>...</var> <var>constNat1</var> <var>constNat2</var> <var>...</var> DO ; <var>innerInstructions</var> ; END
 // Example
 USE MACRO ifNotZero &x DO // always use & before variables, do not for constant numbers
